@@ -219,3 +219,4 @@ class ExtraInfor(BaseGSheetModel):
     VALUE_FOR_DISCOUNT: Annotated[str | None, "BM"] = ""
     DISCOUNT: Annotated[str | None, "BN"] = ""
     DELIVERY_GUARANTEE: Annotated[int, "BO"]
+    CURRENCY_PER_UNIT: Annotated[str, "BP"]

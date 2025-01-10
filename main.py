@@ -2,7 +2,6 @@ import codecs
 import json
 import os
 from datetime import datetime
-
 from dotenv import load_dotenv
 from gspread.utils import a1_to_rowcol
 
@@ -110,10 +109,10 @@ def process(
                         game=_currency_info.Game,
                         server=_currency_info.Server,
                         faction=_currency_info.Faction,
-                        currency_per_unit=sorted_offer_items[0].quantity,
-                        total_units=final_stock,
+                        currency_per_unit=row.extra.CURRENCY_PER_UNIT,
+                        total_units=min(final_stock, 10000),
                         minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                        price_per_unit=round(item_info.adjusted_price * sorted_offer_items[0].quantity, 4),
+                        price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                         discount=row.extra.DISCOUNT,
                         title=row.product.TITLE,
@@ -132,8 +131,8 @@ def process(
                         item_category1=_item_info.item_category1,
                         item_category2=_item_info.item_category2,
                         item_category3=_item_info.item_category3,
-                        item_per_unit=sorted_offer_items[0].quantity,
-                        unit_price=round(item_info.adjusted_price / sorted_offer_items[0].quantity, 4),
+                        item_per_unit=row.extra.CURRENCY_PER_UNIT,
+                        unit_price=float(f"{item_info.adjusted_price:.3f}"),
                         min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                         discount=row.extra.DISCOUNT,
@@ -256,6 +255,7 @@ def write_to_log_cell(
 ### MAIN ###
 
 if __name__ == "__main__":
+    print("Starting...")
     BIJ_HOST_DATA = read_file_with_encoding(constants.DATA_PATH, encoding='utf-8')
     gsheet = GSheet(constants.KEY_PATH)
     headless_browser = SeleniumUtil(mode=2)
