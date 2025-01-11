@@ -110,8 +110,21 @@ class StockInfo(BaseGSheetModel):
     STOCK_LIMIT: Annotated[int, "AM"]
     STOCK_LIMIT2: Annotated[int, "AN"]
     STOCK_FAKE: Annotated[int | None, "AO"] = None
+    PA_IDSHEET_BLACKLIST: Annotated[str | None, "AP"] = ""
+    PA_SHEET_BLACKLIST: Annotated[str | None, "AQ"] = ""
+    PA_CELL_BLACKLIST: Annotated[str | None, "AR"] = ""
     _stock1: int | None = 0
     _stock2: int | None = 0
+
+    def get_pa_blacklist(self) -> list[str]:
+        blacklist = []
+        try:
+            sheet_manager = StockManager(self.PA_IDSHEET_BLACKLIST)
+            blacklist = sheet_manager.get_multiple_str_cells(f"'{self.PA_SHEET_BLACKLIST}'!{self.PA_CELL_BLACKLIST}")
+        except Exception as e:
+            print("Cant get pa blacklist: ", e)
+            pass
+        return blacklist
 
     def stock_1(
         self,
@@ -154,7 +167,6 @@ class StockInfo(BaseGSheetModel):
         self._stock2 = stock2
         return stock1, stock2
 
-
     def cal_stock(self) -> int:
         if self._stock1 == 0 or self._stock1 < self.STOCK_LIMIT:
             if self._stock2 == 0 or self._stock2 < self.STOCK_LIMIT2:
@@ -162,14 +174,15 @@ class StockInfo(BaseGSheetModel):
             return self._stock2
         return self._stock1
 
+
 class G2G(BaseGSheetModel):
-    G2G_CHECK: Annotated[int, "AP"]
-    G2G_PROFIT: Annotated[float, "AQ"]
-    G2G_PRODUCT_COMPARE: Annotated[str, "AR"]
-    G2G_IDSHEET_PRICESS: Annotated[str, "AS"]
-    G2G_SHEET_PRICESS: Annotated[str, "AT"]
-    G2G_CELL_PRICESS: Annotated[str, "AU"]
-    G2G_QUYDOIDONVI: Annotated[float, "AV"]
+    G2G_CHECK: Annotated[int, "AS"]
+    G2G_PROFIT: Annotated[float, "AT"]
+    G2G_PRODUCT_COMPARE: Annotated[str, "AU"]
+    G2G_IDSHEET_PRICESS: Annotated[str, "AV"]
+    G2G_SHEET_PRICESS: Annotated[str, "AW"]
+    G2G_CELL_PRICESS: Annotated[str, "AX"]
+    G2G_QUYDOIDONVI: Annotated[float, "AY"]
 
     def get_g2g_price(
             self
@@ -180,14 +193,14 @@ class G2G(BaseGSheetModel):
 
 
 class FUN(BaseGSheetModel):
-    FUN_CHECK: Annotated[int, "AW"]
-    FUN_PROFIT: Annotated[float, "AX"]
-    FUN_DISCOUNTFEE: Annotated[float, "AY"]
-    FUN_PRODUCT_COMPARE: Annotated[str, "AZ"]
-    FUN_IDSHEET_PRICESS: Annotated[str, "BA"]
-    FUN_SHEET_PRICESS: Annotated[str, "BB"]
-    FUN_CELL_PRICESS: Annotated[str, "BC"]
-    FUN_QUYDOIDONVI: Annotated[float | None, "BD"] = None
+    FUN_CHECK: Annotated[int, "AZ"]
+    FUN_PROFIT: Annotated[float, "BA"]
+    FUN_DISCOUNTFEE: Annotated[float, "BB"]
+    FUN_PRODUCT_COMPARE: Annotated[str, "BC"]
+    FUN_IDSHEET_PRICESS: Annotated[str, "BD"]
+    FUN_SHEET_PRICESS: Annotated[str, "BE"]
+    FUN_CELL_PRICESS: Annotated[str, "BF"]
+    FUN_QUYDOIDONVI: Annotated[float | None, "BG"] = None
 
 
     def get_fun_price(self) -> float:
@@ -197,16 +210,15 @@ class FUN(BaseGSheetModel):
 
 
 class BIJ(BaseGSheetModel):
-    BIJ_CHECK: Annotated[int, "BE"]
-    BIJ_PROFIT: Annotated[float, "BF"]
+    BIJ_CHECK: Annotated[int, "BH"]
+    BIJ_PROFIT: Annotated[float, "BI"]
     # BIJ_NAME: Annotated[str, "BG"]
     # BIJ_SERVER: Annotated[str, "BH"]
-    BIJ_PRODUCT_COMPARE: Annotated[str, "BG"]
-    BIJ_IDSHEET_PRICESS: Annotated[str | None, "BH"] = None
-    BIJ_SHEET_PRICESS: Annotated[str | None, "BI"] = None
-    BIJ_CELL_PRICESS: Annotated[str | None, "BJ"] = None
-    BIJ_QUYDOIDONVI: Annotated[float | None, "BK"] = None
-
+    BIJ_PRODUCT_COMPARE: Annotated[str, "BJ"]
+    BIJ_IDSHEET_PRICESS: Annotated[str | None, "BK"] = None
+    BIJ_SHEET_PRICESS: Annotated[str | None, "BL"] = None
+    BIJ_CELL_PRICESS: Annotated[str | None, "BM"] = None
+    BIJ_QUYDOIDONVI: Annotated[float | None, "BN"] = None
 
     def get_bij_price(self) -> float:
         sheet_manager = StockManager(self.BIJ_IDSHEET_PRICESS)
@@ -215,8 +227,16 @@ class BIJ(BaseGSheetModel):
 
 
 class ExtraInfor(BaseGSheetModel):
-    MIN_UNIT_PER_ORDER: Annotated[int, "BL"]
-    VALUE_FOR_DISCOUNT: Annotated[str | None, "BM"] = ""
-    DISCOUNT: Annotated[str | None, "BN"] = ""
-    DELIVERY_GUARANTEE: Annotated[int, "BO"]
-    CURRENCY_PER_UNIT: Annotated[str, "BP"]
+    MIN_UNIT_PER_ORDER: Annotated[int, "BO"]
+    VALUE_FOR_DISCOUNT: Annotated[str | None, "BP"] = ""
+    DISCOUNT: Annotated[str | None, "BQ"] = ""
+    DELIVERY_GUARANTEE: Annotated[int, "BR"]
+    CURRENCY_PER_UNIT: Annotated[str, "BS"]
+    GAME_LIST_SHEET_ID: Annotated[str | None, "BT"] = ""
+    GAME_LIST_SHEET: Annotated[str | None, "BU"] = ""
+    GAME_LIST_CELLS: Annotated[str | None, "BV"] = ""
+
+    def get_game_list(self) -> list[str]:
+        sheet_manager = StockManager(self.GAME_LIST_SHEET_ID)
+        game_list = sheet_manager.get_multiple_str_cells(f"'{self.GAME_LIST_SHEET}'!{self.GAME_LIST_CELLS}")
+        return game_list

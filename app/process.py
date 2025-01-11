@@ -35,6 +35,7 @@ def get_row_run_index(
 def is_valid_offer_item(
         product: Product,
         offer_item: OfferItem,
+        black_list: list[str]
 ) -> bool:
     product_delivery_time = DeliveryTime.from_text(product.DELIVERY_TIME)
     if (
@@ -47,6 +48,8 @@ def is_valid_offer_item(
     # elif offer_item.seller.feedback_count < product.FEEDBACK:
     #     print(f"Feedback count: {offer_item.seller.feedback_count} for seller {offer_item.seller.name}, ignore")
     #     return False
+    if offer_item.seller in black_list:
+        return False
     if offer_item.min_unit is None or offer_item.min_unit > product.MIN_UNIT:
         return False
     if offer_item.min_stock is None or offer_item.min_stock < product.MINSTOCK:
@@ -58,33 +61,27 @@ def is_valid_offer_item(
 def filter_valid_offer_items(
         product: Product,
         offer_items: list[OfferItem],
+        black_list: list[str],
 ) -> list[OfferItem]:
     return [
         offer_item
         for offer_item in offer_items
-        if is_valid_offer_item(product, offer_item)
+        if is_valid_offer_item(product, offer_item, black_list)
     ]
-
-
-def is_offer_items_contain_my_name() -> bool:
-    # TODO:
-    return False
 
 
 def is_change_price(
         product: Product,
         offer_items: list[OfferItem],
+        black_list: list[str],
 ) -> bool:
     if product.CHECK == 0:
-        return False
-
-    if is_offer_items_contain_my_name():
         return False
 
     if product.EXCLUDE_ADS == 0:  # TODO:
         return False
 
-    filtered_offer_items = filter_valid_offer_items(product, offer_items)
+    filtered_offer_items = filter_valid_offer_items(product, offer_items, black_list)
     if len(filtered_offer_items) == 0:
         return False
 
@@ -167,6 +164,7 @@ def calculate_price_change(
         offer_items: list[OfferItem],
         BIJ_HOST_DATA: dict,
         selenium: SeleniumUtil,
+        black_list: list[str],
 ) -> None | tuple[PriceInfo, list[tuple[float, str] | None]] | tuple[PriceInfo, None]:
     stock_type, stock_num_info = identify_stock(
         gsheet,
@@ -177,6 +175,7 @@ def calculate_price_change(
         filter_valid_offer_items(
             row.product,
             offer_items,
+            black_list=black_list
         )
     )
     min_offer_item.price = round(min_offer_item.price / min_offer_item.quantity, 4)

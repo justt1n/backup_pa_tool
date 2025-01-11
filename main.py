@@ -82,27 +82,49 @@ def process(
         print(f"Row: {index}")
         try:
             row = Row.from_row_index(worksheet, index)
+            pa_blacklist = row.stock_info.get_pa_blacklist()
         except Exception as e:
             print(f"Error getting row: {e}")
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            write_to_log_cell(worksheet, index, _current_time, log_type="time")
+            write_to_log_cell(worksheet, index, "Error: " + _current_time, log_type="time")
             continue
         if not isinstance(row, Row):
             continue
         offer_items = extract_offer_items(row.product.PRODUCT_COMPARE)
         sorted_offer_items = sorted(offer_items, key=lambda x: x.price)
         item_info, stock_fake_items = None, None
-        if is_change_price(row.product, offer_items):
+        if is_change_price(row.product, offer_items, pa_blacklist):
             try:
                 [item_info, stock_fake_items] = calculate_price_change(
-                    gsheet, row, offer_items, BIJ_HOST_DATA, browser
+                    gsheet, row, offer_items, BIJ_HOST_DATA, browser, pa_blacklist
                 )
             except Exception as e:
                 print(f"Error calculating price change: {e}")
                 continue
             row.extra = correct_extra_data(row.extra)
             final_stock = row.stock_info.cal_stock()
-            if "C" in row.product.Product_link:
+            if "SPECIAL" in row.product.Product_link:
+                _id_list = row.extra.get_game_list()
+                for _id in _id_list:
+                    _currency_info = query_currency("storage/joined_data.db", _id)
+                    currency_template.append(
+                        CurrencyTemplate(
+                            game=_currency_info.Game,
+                            server=_currency_info.Server,
+                            faction=_currency_info.Faction,
+                            currency_per_unit=row.extra.CURRENCY_PER_UNIT,
+                            total_units=min(final_stock, 10000),
+                            minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
+                            price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
+                            ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
+                            discount=row.extra.DISCOUNT,
+                            title=row.product.TITLE,
+                            duration=row.product.DURATION,
+                            delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
+                            description=row.product.DESCRIPTION,
+                        )
+                    )
+            elif "C" in row.product.Product_link:
                 _currency_info = query_currency("storage/joined_data.db", row.product.Product_link)
                 currency_template.append(
                     CurrencyTemplate(
@@ -246,7 +268,7 @@ def write_to_log_cell(
         if log_type == "time":
             r, c = a1_to_rowcol(f"E{row_index}")
         if log_type == "error":
-            r, c = a1_to_rowcol(f"CH{row_index}")
+            r, c = a1_to_rowcol(f"CK{row_index}")
         worksheet.update_cell(r, c, log_str)
     except Exception as e:
         print(f"Error writing to log cell: {e}")

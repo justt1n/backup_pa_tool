@@ -10,7 +10,7 @@ class StockManager:
     def __init__(self, spreadsheet_id: str):
         self.credentials_file = "key.json"
         self.spreadsheet_id = spreadsheet_id
-        time.sleep(4)
+        time.sleep(2)
         self.service = self._initialize_service()
 
     def _initialize_service(self):
