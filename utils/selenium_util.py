@@ -61,3 +61,8 @@ class SeleniumUtil:
             EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), '{text}')]"))
         )
         element.click()
+
+    def close(self):
+        self.driver.close()
+        self.driver.quit()
+        self.driver = None
