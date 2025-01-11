@@ -142,12 +142,13 @@ def calculate_price_stock_fake(
             raise Exception(f"Error getting FUN price: {e}")
 
     bij_min_price = None
-    # CNY_RATE = getCNYRate()
+    CNY_RATE = getCNYRate()
     if row.bij.BIJ_CHECK == 1:
         try:
             bij_min_price = (round(row.bij.get_bij_price()
-                                   * row.bij.BIJ_PROFIT
-                                   * row.bij.BIJ_QUYDOIDONVI, 4), "Get directly from sheet")
+                                    * row.bij.BIJ_PROFIT
+                                    * row.bij.BIJ_QUYDOIDONVI
+                                    * CNY_RATE, 4), "Get directly from sheet")
         except Exception as e:
             raise Exception(f"Error getting BIJ price: {e}")
 
