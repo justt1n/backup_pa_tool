@@ -42,7 +42,7 @@ def query_by_game(db_path: str, game_name: str):
     cursor = conn.cursor()
 
     # Define the query
-    query = "SELECT * FROM joined_table WHERE LOWER(ID) LIKE LOWER(?)"
+    query = "SELECT * FROM joined_table WHERE LOWER(Game) LIKE LOWER(?)"
 
     # Execute the query
     cursor.execute(query, (f"%{game_name}%",))
