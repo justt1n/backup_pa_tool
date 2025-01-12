@@ -106,24 +106,48 @@ def process(
             if "SPECIAL" in row.product.Product_link:
                 _id_list = row.extra.get_game_list()
                 for _id in _id_list:
-                    _currency_info = query_currency("storage/joined_data.db", _id)
-                    currency_template.append(
-                        CurrencyTemplate(
-                            game=_currency_info.Game,
-                            server=_currency_info.Server,
-                            faction=_currency_info.Faction,
-                            currency_per_unit=row.extra.CURRENCY_PER_UNIT,
-                            total_units=min(final_stock, 10000),
-                            minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                            price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
-                            ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
-                            discount=row.extra.DISCOUNT,
-                            title=row.product.TITLE,
-                            duration=row.product.DURATION,
-                            delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
-                            description=row.product.DESCRIPTION,
+                    if "C" in _id:
+                        _currency_info = query_currency("storage/joined_data.db", row.product.Product_link)
+                        currency_template.append(
+                            CurrencyTemplate(
+                                game=_currency_info.Game,
+                                server=_currency_info.Server,
+                                faction=_currency_info.Faction,
+                                currency_per_unit=row.extra.CURRENCY_PER_UNIT,
+                                total_units=min(final_stock, 10000),
+                                minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
+                                price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
+                                ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
+                                discount=row.extra.DISCOUNT,
+                                title=row.product.TITLE,
+                                duration=row.product.DURATION,
+                                delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
+                                description=row.product.DESCRIPTION,
+                            )
                         )
-                    )
+                    else:
+                        _item_info = query_item("storage/joined_data.db", row.product.Product_link)
+                        item_template.append(
+                            ItemTemplate(
+                                game=_item_info.game,
+                                server=_item_info.server,
+                                faction=_item_info.faction,
+                                item_category1=_item_info.item_category1,
+                                item_category2=_item_info.item_category2,
+                                item_category3=_item_info.item_category3,
+                                item_per_unit=row.extra.CURRENCY_PER_UNIT,
+                                unit_price=float(f"{item_info.adjusted_price:.3f}"),
+                                min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
+                                ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
+                                discount=row.extra.DISCOUNT,
+                                offer_duration=row.product.DURATION,
+                                delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
+                                delivery_info=row.extra.DELIVERY_INFO,
+                                cover_image=row.extra.COVER_IMAGE,
+                                title=row.product.TITLE,
+                                description=row.product.DESCRIPTION,
+                            )
+                        )
             elif "C" in row.product.Product_link:
                 _currency_info = query_currency("storage/joined_data.db", row.product.Product_link)
                 currency_template.append(
