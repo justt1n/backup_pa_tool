@@ -194,10 +194,25 @@ def calculate_price_change(
         )
         if stock_fake_price is None:
             return None
+        stock_fake_min_price = row.product.get_stock_fake_min_price()
+        stock_fake_max_price = row.product.get_stock_fake_max_price()
+        range_adjust = None
+        if stock_fake_price[0] < stock_fake_min_price:  # type: ignore
+            adjusted_price = stock_fake_min_price
+        elif stock_fake_price[0] > stock_fake_max_price:  # type: ignore
+            adjusted_price = stock_fake_max_price
+        else:
+            range_adjust = random.uniform(
+                row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
+            )
+            adjusted_price = round(
+                stock_fake_price[0] - range_adjust,  # type: ignore
+                row.product.DONGIA_LAMTRON,
+            )
         return PriceInfo(
-            price_min=round(stock_fake_price[0], 4),
-            price_mac=round(stock_fake_price[0], 4),
-            adjusted_price=round(stock_fake_price[0], 4),
+            price_min=round(stock_fake_min_price, 4),
+            price_mac=round(stock_fake_max_price, 4),
+            adjusted_price=round(adjusted_price, 4),
             offer_item=min_offer_item,
             stock_type=stock_type,
             stock_num_info=stock_num_info,
