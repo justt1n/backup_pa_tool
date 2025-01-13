@@ -53,12 +53,12 @@ class Product(BaseGSheetModel):
     IDSHEET_MAX2: Annotated[str, "AD"]
     SHEET_MAX2: Annotated[str, "AE"]
     CELL_MAX2: Annotated[str, "AF"]
-    IDSHEET_MIN_STOCKFAKE: Annotated[str, "CO"]
-    SHEET_MIN_STOCKFAKE: Annotated[str, "CP"]
-    CELL_MIN_STOCKFAKE: Annotated[str, "CQ"]
-    IDSHEET_MAX_STOCKFAKE: Annotated[str, "CR"]
-    SHEET_MAX_STOCKFAKE: Annotated[str, "CS"]
-    CELL_MAX_STOCKFAKE: Annotated[str, "CT"]
+    IDSHEET_MIN_STOCKFAKE: Annotated[str, "BW"]
+    SHEET_MIN_STOCKFAKE: Annotated[str, "BX"]
+    CELL_MIN_STOCKFAKE: Annotated[str, "BY"]
+    IDSHEET_MAX_STOCKFAKE: Annotated[str, "BZ"]
+    SHEET_MAX_STOCKFAKE: Annotated[str, "CA"]
+    CELL_MAX_STOCKFAKE: Annotated[str, "CB"]
 
     def min_price_stock_1(
         self,
