@@ -116,7 +116,7 @@ def process(
                                 currency_per_unit=row.extra.CURRENCY_PER_UNIT,
                                 total_units=min(final_stock, 10000),
                                 minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                                price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
+                                price_per_unit=float(f"{item_info.adjusted_price * row.extra.CURRENCY_PER_UNIT:.3f}"),
                                 ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                                 discount=row.extra.DISCOUNT,
                                 title=row.product.TITLE,
@@ -136,7 +136,7 @@ def process(
                                 item_category2=_item_info.item_category2,
                                 item_category3=_item_info.item_category3,
                                 item_per_unit=row.extra.CURRENCY_PER_UNIT,
-                                unit_price=float(f"{item_info.adjusted_price:.3f}"),
+                                unit_price=float(f"{item_info.adjusted_price * row.extra.CURRENCY_PER_UNIT:.3f}"),
                                 min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                                 ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                                 discount=row.extra.DISCOUNT,
@@ -158,7 +158,7 @@ def process(
                         currency_per_unit=row.extra.CURRENCY_PER_UNIT,
                         total_units=min(final_stock, 10000),
                         minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                        price_per_unit=float(f"{item_info.adjusted_price:.3f}"),
+                        price_per_unit=float(f"{item_info.adjusted_price * row.extra.CURRENCY_PER_UNIT:.3f}"),
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                         discount=row.extra.DISCOUNT,
                         title=row.product.TITLE,
@@ -178,7 +178,7 @@ def process(
                         item_category2=_item_info.item_category2,
                         item_category3=_item_info.item_category3,
                         item_per_unit=row.extra.CURRENCY_PER_UNIT,
-                        unit_price=float(f"{item_info.adjusted_price:.3f}"),
+                        unit_price=float(f"{item_info.adjusted_price * row.extra.CURRENCY_PER_UNIT:.3f}"),
                         min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                         discount=row.extra.DISCOUNT,
@@ -318,5 +318,6 @@ if __name__ == "__main__":
                 sheet_id=os.getenv("SPREADSHEET_ID"),  # type: ignore
             )
             worksheet = sheet.open_worksheet(os.getenv("SHEET_NAME"))  # type: ignore
-            write_to_log_cell(worksheet, 2, _str_error, log_type="error")
+            _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            write_to_log_cell(worksheet, 2, f"Error on: {_current_time}" + _str_error, log_type="error")
         print("Done")
