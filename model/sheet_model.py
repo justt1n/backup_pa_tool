@@ -53,12 +53,12 @@ class Product(BaseGSheetModel):
     IDSHEET_MAX2: Annotated[str, "AD"]
     SHEET_MAX2: Annotated[str, "AE"]
     CELL_MAX2: Annotated[str, "AF"]
-    IDSHEET_MIN_STOCKFAKE: Annotated[str, "BW"]
-    SHEET_MIN_STOCKFAKE: Annotated[str, "BX"]
-    CELL_MIN_STOCKFAKE: Annotated[str, "BY"]
-    IDSHEET_MAX_STOCKFAKE: Annotated[str, "BZ"]
-    SHEET_MAX_STOCKFAKE: Annotated[str, "CA"]
-    CELL_MAX_STOCKFAKE: Annotated[str, "CB"]
+    IDSHEET_MAX_STOCKFAKE: Annotated[str | None, "BW"] = ''
+    SHEET_MAX_STOCKFAKE: Annotated[str | None, "BX"] = ''
+    CELL_MAX_STOCKFAKE: Annotated[str | None, "BY"] = ''
+    IDSHEET_MIN_STOCKFAKE: Annotated[str | None, "BZ"] = ''
+    SHEET_MIN_STOCKFAKE: Annotated[str | None, "CA"] = ''
+    CELL_MIN_STOCKFAKE: Annotated[str | None, "CB"] = ''
 
     def min_price_stock_1(
         self,
@@ -107,12 +107,12 @@ class Product(BaseGSheetModel):
 
     def get_stock_fake_min_price(self):
         sheet_manager = StockManager(self.IDSHEET_MIN_STOCKFAKE)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MIN_STOCKFAKE}'!{self.CELL_MIN_STOCKFAKE}")
+        cell_value = sheet_manager.get_cell_stock(f"'{self.SHEET_MIN_STOCKFAKE}'!{self.CELL_MIN_STOCKFAKE}")
         return float(cell_value)
 
     def get_stock_fake_max_price(self):
         sheet_manager = StockManager(self.IDSHEET_MAX_STOCKFAKE)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MAX_STOCKFAKE}'!{self.CELL_MAX_STOCKFAKE}")
+        cell_value = sheet_manager.get_cell_stock(f"'{self.SHEET_MAX_STOCKFAKE}'!{self.CELL_MAX_STOCKFAKE}")
         return float(cell_value)
 
 

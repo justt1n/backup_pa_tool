@@ -194,10 +194,12 @@ def calculate_price_change(
         )
         if stock_fake_price is None:
             return None
-        stock_fake_min_price = row.product.get_stock_fake_min_price()
-        stock_fake_max_price = row.product.get_stock_fake_max_price()
+        stock_fake_min_price = int(row.product.get_stock_fake_min_price())
+        stock_fake_max_price = int(row.product.get_stock_fake_max_price())
         range_adjust = None
-        if stock_fake_price[0] < stock_fake_min_price:  # type: ignore
+        if stock_fake_min_price == -1 and stock_fake_max_price == -1:
+            adjusted_price = stock_fake_price[0]
+        elif stock_fake_price[0] < stock_fake_min_price:  # type: ignore
             adjusted_price = stock_fake_min_price
         elif stock_fake_price[0] > stock_fake_max_price:  # type: ignore
             adjusted_price = stock_fake_max_price
