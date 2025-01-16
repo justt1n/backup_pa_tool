@@ -197,7 +197,7 @@ def calculate_price_change(
         stock_fake_min_price = float(row.product.get_stock_fake_min_price())
         stock_fake_max_price = float(row.product.get_stock_fake_max_price())
         range_adjust = None
-        if int(stock_fake_min_price) == -1 and int(stock_fake_max_price) == -1:
+        if int(stock_fake_min_price) == -1 or int(stock_fake_max_price) == -1:
             adjusted_price = stock_fake_price[0]
         elif stock_fake_price[0] < stock_fake_min_price:  # type: ignore
             adjusted_price = stock_fake_min_price
