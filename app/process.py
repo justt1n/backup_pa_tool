@@ -198,7 +198,8 @@ def calculate_price_change(
         stock_fake_max_price = float(row.product.get_stock_fake_max_price())
         range_adjust = None
         if int(stock_fake_min_price) == -1 and int(stock_fake_max_price) == -1:
-            closest_offer_item = min(offer_items, key=lambda item: abs(item.price - stock_fake_price[0]))
+            valid_offer_items = [item for item in offer_items if item.seller not in black_list]
+            closest_offer_item = min(valid_offer_items, key=lambda item: abs(item.price - stock_fake_price[0]))
             range_adjust = random.uniform(
                 row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
             )
