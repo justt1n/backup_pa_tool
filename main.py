@@ -266,7 +266,13 @@ def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items
         _str += f"PriceMin = {item_info.price_min}, PriceMax = {item_info.price_mac},\n"
         return _str + "\n"
     if stock_fake_items:
-        _str += f"PriceMin = {item_info.price_min}, PriceMax = {item_info.price_mac}, \n"
+        _pmin = item_info.price_min
+        _pmax = item_info.price_mac
+        if int(item_info.price_min) == -1:
+            _pmin = "Cant get price"
+        if int(item_info.price_mac) == -1:
+            _pmax = "Cant get price"
+        _str += f"PriceMin = {_pmin}, PriceMax = {_pmax}, \n"
         if stock_fake_items[0] is not None:
             _str += f"\nMin G2G: {stock_fake_items[0][1]} = {stock_fake_items[0][0]}, \n"
         else:
