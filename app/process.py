@@ -110,7 +110,7 @@ def identify_stock(
     return stock_type, stock_num_info
 
 
-@retry(retries=5, delay=0.25)
+@retry(retries=3, delay=0.25)
 def calculate_price_stock_fake(
         gsheet: GSheet,
         row: Row,
@@ -199,7 +199,13 @@ def calculate_price_change(
         range_adjust = None
         if int(stock_fake_min_price) == -1 and int(stock_fake_max_price) == -1:
             closest_offer_item = min(offer_items, key=lambda item: abs(item.price - stock_fake_price[0]))
-            adjusted_price = closest_offer_item
+            range_adjust = random.uniform(
+                row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
+            )
+            adjusted_price = round(
+                closest_offer_item.price - range_adjust,  # type: ignore
+                row.product.DONGIA_LAMTRON,
+            )
         elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:  # type: ignore
             adjusted_price = stock_fake_min_price
         elif stock_fake_max_price != -1 and stock_fake_price[0] > stock_fake_max_price:  # type: ignore
