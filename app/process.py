@@ -204,7 +204,7 @@ def calculate_price_change(
                 row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
             )
             adjusted_price = round(
-                closest_offer_item.price - range_adjust,  # type: ignore
+                (closest_offer_item.price / closest_offer_item.quantity - range_adjust),  # type: ignore
                 row.product.DONGIA_LAMTRON,
             )
         elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:  # type: ignore
