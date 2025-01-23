@@ -211,9 +211,10 @@ def process(
     if len(item_template) > 0:
         is_have_item = True
         item_template = item_templates_to_dicts(item_template)
-    create_file_from_template("currency_template.xlsx", "storage/output/new_currency_file.xlsx",
+    create_file_from_template("currency_template.xlsx", "storage/output/currency/new_currency_file.xlsx",
                               currency_template)
-    create_file_from_template("item_template.xlsx", "storage/output/new_item_file.xlsx", item_template)
+    create_file_from_template("item_template.xlsx", "storage/output/item/new_item_file.xlsx",
+                              item_template)
     print("Create file successfully, check storage/output folder")
 
     try:
