@@ -233,4 +233,4 @@ def sample_usage():
     print(list_files_in_output("storage/pa_template/item"))
 
 
-sample_usage()
+# sample_usage()
