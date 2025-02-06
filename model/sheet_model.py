@@ -42,17 +42,17 @@ class Product(BaseGSheetModel):
     IDSHEET_MIN: Annotated[str, "S"]
     SHEET_MIN: Annotated[str, "T"]
     CELL_MIN: Annotated[str, "U"]
-    IDSHEET_MIN2: Annotated[str, "V"]
-    SHEET_MIN2: Annotated[str, "W"]
-    CELL_MIN2: Annotated[str, "X"]
+    IDSHEET_MIN2: Annotated[str | None, "V"] = ''
+    SHEET_MIN2: Annotated[str | None, "W"] = ''
+    CELL_MIN2: Annotated[str | None, "X"] = ''
     DELIVERY0: Annotated[str, "Y"]
     DELIVERY1: Annotated[str, "Z"]
     IDSHEET_MAX: Annotated[str, "AA"]
     SHEET_MAX: Annotated[str, "AB"]
     CELL_MAX: Annotated[str, "AC"]
-    IDSHEET_MAX2: Annotated[str, "AD"]
-    SHEET_MAX2: Annotated[str, "AE"]
-    CELL_MAX2: Annotated[str, "AF"]
+    IDSHEET_MAX2: Annotated[str | None, "AD"] = ''
+    SHEET_MAX2: Annotated[str | None, "AE"] = ''
+    CELL_MAX2: Annotated[str | None, "AF"] = ''
     IDSHEET_MAX_STOCKFAKE: Annotated[str | None, "BW"] = ''
     SHEET_MAX_STOCKFAKE: Annotated[str | None, "BX"] = ''
     CELL_MAX_STOCKFAKE: Annotated[str | None, "BY"] = ''
@@ -120,11 +120,11 @@ class StockInfo(BaseGSheetModel):
     IDSHEET_STOCK: Annotated[str, "AG"]
     SHEET_STOCK: Annotated[str, "AH"]
     CELL_STOCK: Annotated[str, "AI"]
-    IDSHEET_STOCK2: Annotated[str, "AJ"]
-    SHEET_STOCK2: Annotated[str, "AK"]
-    CELL_STOCK2: Annotated[str, "AL"]
+    IDSHEET_STOCK2: Annotated[str, "AJ"] = ''
+    SHEET_STOCK2: Annotated[str, "AK"] = ''
+    CELL_STOCK2: Annotated[str, "AL"] = ''
     STOCK_LIMIT: Annotated[int, "AM"]
-    STOCK_LIMIT2: Annotated[int, "AN"]
+    STOCK_LIMIT2: Annotated[int, "AN"] = ''
     STOCK_FAKE: Annotated[int | None, "AO"] = None
     PA_IDSHEET_BLACKLIST: Annotated[str | None, "AP"] = ""
     PA_SHEET_BLACKLIST: Annotated[str | None, "AQ"] = ""
