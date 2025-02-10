@@ -20,7 +20,7 @@ class StockManager:
         )
         return build('sheets', 'v4', credentials=credentials)
 
-    def get_stock(self, range_name: str) -> float:
+    def get_cell_float_value(self, range_name: str) -> float:
         try:
             result = (
                 self.service.spreadsheets()

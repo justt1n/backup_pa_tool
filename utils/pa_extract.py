@@ -66,7 +66,8 @@ def __extract_server(
     )
 
     if offer_title_lv1 == "" or offer_title_lv2 == "":
-        raise PACrawlerError("Can't extract server")
+        # raise PACrawlerError("Can't extract server")
+        pass
 
     return f"{offer_title_lv1} - {offer_title_lv2}"
 

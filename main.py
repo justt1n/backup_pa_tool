@@ -93,10 +93,10 @@ def process(
         offer_items = extract_offer_items(row.product.PRODUCT_COMPARE)
         sorted_offer_items = sorted(offer_items, key=lambda x: x.price)
         item_info, stock_fake_items = None, None
-        if is_change_price(row.product, sorted_offer_items, pa_blacklist):
+        if is_change_price(row.product, offer_items, pa_blacklist):
             try:
                 [item_info, stock_fake_items] = calculate_price_change(
-                    gsheet, row, sorted_offer_items, BIJ_HOST_DATA, browser, pa_blacklist
+                    gsheet, row, offer_items, BIJ_HOST_DATA, browser, pa_blacklist
                 )
             except Exception as e:
                 print(f"Error calculating price change: {e}")
@@ -243,7 +243,7 @@ def get_top_pa_offers_str(
     _str = "Top 3 PA offers:\n"
     for i, item in enumerate(sorted_offer_items[:3]):
         if i == 0:
-            _str += f"{i + 1}: {item.seller.name}: {round(item.price, 4)}\n"
+            _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, 4)}\n"
             continue
         _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, 4)}\n"
     return _str

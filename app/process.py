@@ -2,7 +2,7 @@ import random
 from typing import Any
 
 import gspread
-
+import copy
 from decorator.retry import retry
 from decorator.time_execution import time_execution
 from model.crawl_model import G2GOfferItem, OfferItem, DeliveryTime, FUNOfferItem, StockNumInfo
@@ -105,7 +105,7 @@ def identify_stock(
     stock_type = StockType.stock_fake
     if stock_1 >= stock_info.STOCK_LIMIT:
         stock_type = StockType.stock_1
-    if stock_2 >= stock_info.STOCK_LIMIT2:
+    if stock_2 != -1 and stock_2 >= stock_info.STOCK_LIMIT2:
         stock_type = StockType.stock_2
     return stock_type, stock_num_info
 
@@ -170,11 +170,11 @@ def calculate_price_change(
         gsheet,
         row.stock_info,
     )
-
+    offer_items_copy = copy.deepcopy(offer_items)
     min_offer_item = OfferItem.min_offer_item(
         filter_valid_offer_items(
             row.product,
-            offer_items,
+            offer_items_copy,
             black_list=black_list
         )
     )

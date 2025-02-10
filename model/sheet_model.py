@@ -1,9 +1,9 @@
+from typing import Annotated
+
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
-from typing import Annotated, cast
 
-from decorator.time_execution import time_execution
-from utils.ggsheet import GSheet, Sheet
+from utils.ggsheet import GSheet
 from utils.google_api import StockManager
 
 
@@ -12,7 +12,7 @@ class BaseGSheetModel(BaseModel):
 
     @classmethod
     def fields_exclude_row_index(
-        cls,
+            cls,
     ) -> dict[str, FieldInfo]:
         dic: dict[str, FieldInfo] = {}
         for k, v in cls.model_fields.items():
@@ -47,9 +47,9 @@ class Product(BaseGSheetModel):
     CELL_MIN2: Annotated[str | None, "X"] = ''
     DELIVERY0: Annotated[str, "Y"]
     DELIVERY1: Annotated[str, "Z"]
-    IDSHEET_MAX: Annotated[str, "AA"]
-    SHEET_MAX: Annotated[str, "AB"]
-    CELL_MAX: Annotated[str, "AC"]
+    IDSHEET_MAX: Annotated[str | None, "AA"] = ''
+    SHEET_MAX: Annotated[str | None, "AB"] = ''
+    CELL_MAX: Annotated[str | None, "AC"] = ''
     IDSHEET_MAX2: Annotated[str | None, "AD"] = ''
     SHEET_MAX2: Annotated[str | None, "AE"] = ''
     CELL_MAX2: Annotated[str | None, "AF"] = ''
@@ -61,49 +61,56 @@ class Product(BaseGSheetModel):
     CELL_MIN_STOCKFAKE: Annotated[str | None, "CB"] = ''
 
     def min_price_stock_1(
-        self,
-        gsheet: GSheet,
+            self,
+            gsheet: GSheet,
     ) -> float:
-        sheet_manager = StockManager(self.IDSHEET_MIN)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MIN}'!{self.CELL_MIN}")
-        # sheet = Sheet.from_sheet_id(gsheet, self.IDSHEET_MIN)
-        # worksheet = sheet.open_worksheet(self.SHEET_MIN)
-        # cell_value = worksheet.batch_get([self.CELL_MIN])[0]
+        try:
+            sheet_manager = StockManager(self.IDSHEET_MIN)
+            cell_value = sheet_manager.get_cell_float_value(f"'{self.SHEET_MIN}'!{self.CELL_MIN}")
+            # sheet = Sheet.from_sheet_id(gsheet, self.IDSHEET_MIN)
+            # worksheet = sheet.open_worksheet(self.SHEET_MIN)
+            # cell_value = worksheet.batch_get([self.CELL_MIN])[0]
 
-        return float(cell_value)  # type: ignore
+            return float(cell_value)  # type: ignore
+        except Exception as e:
+            print("No min price stock 1")
+            return 0
 
     def max_price_stock_1(
-        self,
-        gsheet: GSheet,
+            self,
+            gsheet: GSheet,
     ) -> float:
-        sheet_manager = StockManager(self.IDSHEET_MAX)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MAX}'!{self.CELL_MAX}")
-        # sheet = Sheet.from_sheet_id(gsheet, self.IDSHEET_MAX)
-        # worksheet = sheet.open_worksheet(self.SHEET_MAX)
-        # cell_value = worksheet.batch_get([self.CELL_MAX])[0]
-        return float(cell_value)  # type: ignore
+        try:
+            sheet_manager = StockManager(self.IDSHEET_MAX)
+            cell_value = sheet_manager.get_cell_float_value(f"'{self.SHEET_MAX}'!{self.CELL_MAX}")
+            return float(cell_value)  # type: ignore
+        except Exception as e:
+            print("No max price stock 1")
+            return 999999
 
     def min_price_stock_2(
-        self,
-        gsheet: GSheet,
+            self,
+            gsheet: GSheet,
     ) -> float:
-        sheet_manager = StockManager(self.IDSHEET_MIN2)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MIN2}'!{self.CELL_MIN2}")
-        # sheet = Sheet.from_sheet_id(gsheet, self.IDSHEET_MIN2)
-        # worksheet = sheet.open_worksheet(self.SHEET_MIN2)
-        # cell_value = worksheet.batch_get([self.CELL_MIN2])[0]
-        return float(cell_value)  # type: ignore
+        try:
+            sheet_manager = StockManager(self.IDSHEET_MIN2)
+            cell_value = sheet_manager.get_cell_float_value(f"'{self.SHEET_MIN2}'!{self.CELL_MIN2}")
+            return float(cell_value)  # type: ignore
+        except Exception as e:
+            print("No min price stock 2")
+            return 0
 
     def max_price_stock_2(
-        self,
-        gsheet: GSheet,
+            self,
+            gsheet: GSheet,
     ) -> float:
-        sheet_manager = StockManager(self.IDSHEET_MAX2)
-        cell_value = sheet_manager.get_stock(f"'{self.SHEET_MAX2}'!{self.CELL_MAX2}")
-        # sheet = Sheet.from_sheet_id(gsheet, self.IDSHEET_MAX2)
-        # worksheet = sheet.open_worksheet(self.SHEET_MAX2)
-        # cell_value = worksheet.batch_get([self.CELL_MAX2])[0]
-        return float(cell_value)  # type: ignore
+        try:
+            sheet_manager = StockManager(self.IDSHEET_MAX2)
+            cell_value = sheet_manager.get_cell_float_value(f"'{self.SHEET_MAX2}'!{self.CELL_MAX2}")
+            return float(cell_value)  # type: ignore
+        except Exception as e:
+            print("No max price stock 2")
+            return 999999
 
     def get_stock_fake_min_price(self):
         sheet_manager = StockManager(self.IDSHEET_MIN_STOCKFAKE)
@@ -142,12 +149,9 @@ class StockInfo(BaseGSheetModel):
             pass
         return blacklist
 
-    def stock_1(
-        self,
-        gsheet: GSheet,
-    ) -> int:
+    def stock_1(self) -> int:
         stock_mng = StockManager(self.IDSHEET_STOCK)
-        stock1 = stock_mng.get_stock(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
+        stock1 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
         try:
             self._stock1 = stock1  # type: ignore
             return stock1  # type: ignore
@@ -155,16 +159,14 @@ class StockInfo(BaseGSheetModel):
             print(e)
             raise Exception("Error getting stock 1")
 
-    def stock_2(
-        self,
-        gsheet: GSheet,
-    ) -> int:
-        stock_mng = StockManager(self.IDSHEET_STOCK)
-        stock2 = stock_mng.get_stock(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
+    def stock_2(self) -> int:
+        stock_mng = StockManager(self.IDSHEET_STOCK2)
+        stock2 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK2}'!{self.CELL_STOCK2}")
         try:
             self._stock2 = stock2  # type: ignore
             return stock2  # type: ignore
         except Exception as e:
+            self._stock2 = -1
             print(e)
             raise Exception("Error getting stock 2")
 
@@ -175,10 +177,8 @@ class StockInfo(BaseGSheetModel):
             cell2 = f"'{self.SHEET_STOCK}'!{self.CELL_STOCK2}"
             stock1, stock2 = stock_manager.get_multiple_cells([cell1, cell2])
         else:
-            stock_mng = StockManager(self.IDSHEET_STOCK)
-            stock1 = stock_mng.get_stock(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
-            stock_mng = StockManager(self.IDSHEET_STOCK2)
-            stock2 = stock_mng.get_stock(f"'{self.SHEET_STOCK2}'!{self.CELL_STOCK2}")
+            stock1 = self.stock_1()
+            stock2 = self.stock_2()
         self._stock1 = stock1
         self._stock2 = stock2
         return stock1, stock2
@@ -204,7 +204,7 @@ class G2G(BaseGSheetModel):
             self
     ) -> float:
         sheet_manager = StockManager(self.G2G_IDSHEET_PRICESS)
-        blacklist = sheet_manager.get_stock(f"'{self.G2G_SHEET_PRICESS}'!{self.G2G_CELL_PRICESS}")
+        blacklist = sheet_manager.get_cell_float_value(f"'{self.G2G_SHEET_PRICESS}'!{self.G2G_CELL_PRICESS}")
         return blacklist
 
 
@@ -218,11 +218,10 @@ class FUN(BaseGSheetModel):
     FUN_CELL_PRICESS: Annotated[str, "BF"]
     FUN_QUYDOIDONVI: Annotated[float | None, "BG"] = None
 
-
     def get_fun_price(self) -> float:
         sheet_manager = StockManager(self.FUN_IDSHEET_PRICESS)
-        blacklist = sheet_manager.get_stock(f"'{self.FUN_SHEET_PRICESS}'!{self.FUN_CELL_PRICESS}")
-        return blacklist
+        price = sheet_manager.get_cell_float_value(f"'{self.FUN_SHEET_PRICESS}'!{self.FUN_CELL_PRICESS}")
+        return price
 
 
 class BIJ(BaseGSheetModel):
@@ -238,8 +237,8 @@ class BIJ(BaseGSheetModel):
 
     def get_bij_price(self) -> float:
         sheet_manager = StockManager(self.BIJ_IDSHEET_PRICESS)
-        blacklist = sheet_manager.get_stock(f"'{self.BIJ_SHEET_PRICESS}'!{self.BIJ_CELL_PRICESS}")
-        return float(blacklist)
+        price = sheet_manager.get_cell_float_value(f"'{self.BIJ_SHEET_PRICESS}'!{self.BIJ_CELL_PRICESS}")
+        return float(price)
 
 
 class ExtraInfor(BaseGSheetModel):
