@@ -72,11 +72,9 @@ class StockManager:
                 cell_values.append(int(float(cell)))  # Handle float-like strings like '0.'
             return cell_values
         except ValueError as ve:
-            print(f"ValueError while parsing cell values: {ve}")
-            raise Exception(f"Invalid stock value in ranges {ranges}")
+            raise Exception(f"Invalid stock value in ranges {ranges}\n{ve}")
         except Exception as e:
-            print(f"Error retrieving values from ranges {ranges}: {e}")
-            raise Exception(f"Error getting values from ranges {ranges}")
+            raise Exception(f"Error getting values from ranges {ranges}{e}")
 
     def get_multiple_str_cells(self, range_str: str) -> list[str]:
         try:

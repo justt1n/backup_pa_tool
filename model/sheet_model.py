@@ -150,32 +150,37 @@ class StockInfo(BaseGSheetModel):
         return blacklist
 
     def stock_1(self) -> int:
-        stock_mng = StockManager(self.IDSHEET_STOCK)
-        stock1 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
         try:
+            stock_mng = StockManager(self.IDSHEET_STOCK)
+            stock1 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}")
             self._stock1 = stock1  # type: ignore
             return stock1  # type: ignore
         except Exception as e:
-            print(e)
-            raise Exception("Error getting stock 1")
+            self._stock1 = -1
+            print("No Stock 1 or wrong sheet id")
+            return -1
 
     def stock_2(self) -> int:
-        stock_mng = StockManager(self.IDSHEET_STOCK2)
-        stock2 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK2}'!{self.CELL_STOCK2}")
         try:
+            stock_mng = StockManager(self.IDSHEET_STOCK2)
+            stock2 = stock_mng.get_cell_float_value(f"'{self.SHEET_STOCK2}'!{self.CELL_STOCK2}")
             self._stock2 = stock2  # type: ignore
             return stock2  # type: ignore
         except Exception as e:
             self._stock2 = -1
-            print(e)
-            raise Exception("Error getting stock 2")
+            print("No Stock 2 or wrong sheet id")
+            return -1
 
     def get_stocks(self):
         if self.IDSHEET_STOCK == self.IDSHEET_STOCK2:
             stock_manager = StockManager(self.IDSHEET_STOCK)
             cell1 = f"'{self.SHEET_STOCK}'!{self.CELL_STOCK}"
             cell2 = f"'{self.SHEET_STOCK}'!{self.CELL_STOCK2}"
-            stock1, stock2 = stock_manager.get_multiple_cells([cell1, cell2])
+            try:
+                stock1, stock2 = stock_manager.get_multiple_cells([cell1, cell2])
+            except Exception as e:
+                stock1 = self.stock_1()
+                stock2 = self.stock_2()
         else:
             stock1 = self.stock_1()
             stock2 = self.stock_2()
