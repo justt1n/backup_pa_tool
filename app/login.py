@@ -39,7 +39,10 @@ def login(
             time.sleep(3)
         except Exception:
             break
-    _time_sleep = float(os.getenv("TIME_SLEEP"))
+    try:
+        _time_sleep = float(os.getenv("TIME_SLEEP"))
+    except Exception:
+        _time_sleep = 0
     ### upload currency file
     for file in list_files_in_output('storage/output/item'):
         sendCurrencyFile(_browser, "storage/output/new_currency_file.xlsx")
