@@ -104,5 +104,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    query_currency('storage/joined_data.db', 'C686')
+    main()
+    #query_currency('storage/joined_data.db', 'C686')
