@@ -10,9 +10,9 @@ from constants import TEMPLATE_FOLDER
 
 class CurrencyTemplate(BaseModel):
     action: str = "Sell"
-    game: str
-    server: str
-    faction: str
+    game: str | None
+    server: str | None
+    faction: str | None
     currency_per_unit: float
     total_units: float
     minimum_unit_per_order: float
@@ -34,11 +34,11 @@ class CurrencyTemplate(BaseModel):
 
 class ItemTemplate(BaseModel):
     game: str
-    server: str
-    faction: str
-    item_category1: str
-    item_category2: str
-    item_category3: str
+    server: str | None
+    faction: str | None
+    item_category1: str | None
+    item_category2: str | None
+    item_category3: str | None
     item_per_unit: float
     unit_price: float
     min_unit_per_order: float

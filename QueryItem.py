@@ -8,11 +8,11 @@ from pydantic import BaseModel
 class ItemQueryItem(BaseModel):
     ID: str
     game: str
-    server: str
-    faction: str
-    item_category1: str
-    item_category2: str
-    item_category3: str
+    server: str | None
+    faction: str | None
+    item_category1: str | None
+    item_category2: str | None
+    item_category3: str | None
 
 
 def query_item(db_path: str, game_id: str) -> ItemQueryItem:
