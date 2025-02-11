@@ -7,9 +7,9 @@ from pydantic import BaseModel
 
 class CurrencyQueryItem(BaseModel):
     ID: str
-    Game: str
-    Server: str
-    Faction: str
+    Game: str | None
+    Server: str | None
+    Faction: str | None
 
 
 def query_currency(db_path: str, game_id: str) -> CurrencyQueryItem:
@@ -104,4 +104,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    query_currency('storage/joined_data.db', 'C686')
