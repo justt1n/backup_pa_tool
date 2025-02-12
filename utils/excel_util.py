@@ -136,22 +136,20 @@ def write_data_to_xlsx(file_path: str, data: List[Dict[str, any]]):
             group.reset_index(drop=True, inplace=True)
 
             # Save each group to a separate Excel file
-            game_file_path = os.path.join(os.path.dirname(file_path), f"{game}.xlsx")
-            group.to_excel(game_file_path, index=False, sheet_name="offer details")
+            if "Description" in group.columns:
+                group.loc[1:, "Description"] = ""
             # Ensure the "Description" column keeps only the first value
             try:
-
-                if "Description" in df_new.columns:
-                    df_new.loc[1:, "Description"] = ""
-
-                if "Price Per Unit" in df_new.columns:
-                    df_new = df_new[df_new["Price Per Unit"] != 0]
+                if "Price Per Unit" in group.columns:
+                    group = group[group["Price Per Unit"] != 0]
             except KeyError:
                 print("The 'Price Per Unit' column is not present in the file")
 
             # Cap "Total Units" to a maximum of 10,000 if applicable
-            if "Total Units" in df_new.columns:
-                df_new.loc[df_new["Total Units"] > 10000, "Total Units"] = 10000
+            if "Total Units" in group.columns:
+                group.loc[group["Total Units"] > 10000, "Total Units"] = 10000
+            game_file_path = os.path.join(os.path.dirname(file_path), f"{game}.xlsx")
+            group.to_excel(game_file_path, index=False, sheet_name="offer details")
             print("saved to", game_file_path)
     else:
         raise ValueError("The 'Game' column is required for 'currency' mode or it not currency file")
