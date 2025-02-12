@@ -17,7 +17,7 @@ from model.enums import StockType
 from model.payload import Row, PriceInfo
 from model.sheet_model import ExtraInfor
 from utils.excel_util import CurrencyTemplate, currency_templates_to_dicts, item_templates_to_dicts, ItemTemplate, \
-    create_file_from_template
+    create_file_from_template, clear_output_directory
 from utils.exceptions import PACrawlerError
 from utils.ggsheet import GSheet, Sheet
 from utils.logger import setup_logging
@@ -211,6 +211,8 @@ def process(
     if len(item_template) > 0:
         is_have_item = True
         item_template = item_templates_to_dicts(item_template)
+    clear_output_directory("storage/output/item")
+    clear_output_directory("storage/output/currency")
     create_file_from_template("currency_template.xlsx", "storage/output/currency/new_currency_file.xlsx",
                               currency_template)
     create_file_from_template("item_template.xlsx", "storage/output/item/new_item_file.xlsx",
