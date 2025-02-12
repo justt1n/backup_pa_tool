@@ -63,6 +63,10 @@ def login(
 
 
 def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
+
+    if "new_currency_template.xlsx" in path:
+        return
+
     _browser.get(
         "https://me.playerauctions.com/member/batchoffer/?menutype=offer&menusubtype=currencybulkoffertool"
     )
@@ -84,6 +88,10 @@ def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
 
 
 def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
+
+    if "new_item_template.xlsx" in path:
+        return
+
     _browser.get(
         "https://me.playerauctions.com/member/itemsbulkupload/?menutype=offer&menusubtype=itembulkoffertool"
     )
