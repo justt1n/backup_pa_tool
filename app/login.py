@@ -45,7 +45,7 @@ def login(
         _time_sleep = 0
     ### upload currency file
     for file in list_files_in_output('storage/output/item'):
-        sendCurrencyFile(_browser, "storage/output/new_currency_file.xlsx")
+        sendCurrencyFile(_browser, file)
         print(f"Upload {file}")
         time.sleep(_time_sleep)
         print(f"Sleeping for {_time_sleep} seconds")
@@ -53,7 +53,7 @@ def login(
     if isHaveItem:
         ### upload item file
         for file in list_files_in_output('storage/output/item'):
-            sendItemFile(_browser, "storage/output/new_item_file.xlsx")
+            sendItemFile(_browser, file)
             print(f"Upload {file}")
             time.sleep(_time_sleep)
             print(f"Sleeping for {_time_sleep} seconds")
