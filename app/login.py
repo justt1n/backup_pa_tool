@@ -64,7 +64,7 @@ def login(
 
 def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
 
-    if "new_currency_template.xlsx" in path:
+    if "new_currency_template" in path:
         return
 
     _browser.get(
@@ -89,7 +89,7 @@ def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
 
 def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
 
-    if "new_item_template.xlsx" in path:
+    if "new_item_template" in path:
         return
 
     _browser.get(
