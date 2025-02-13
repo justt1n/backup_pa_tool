@@ -1,5 +1,6 @@
 import os
 import time
+from time import sleep
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -26,6 +27,7 @@ def login(
 
     inner_text = " LOG IN "  # Replace with the desired text
     _browser.click_by_inner_text(inner_text)
+    sleep(3)
     while True:
         try:
             print(
@@ -44,7 +46,7 @@ def login(
     except Exception:
         _time_sleep = 0
     ### upload currency file
-    for file in list_files_in_output('storage/output/item'):
+    for file in list_files_in_output('storage/output/currency'):
         sendCurrencyFile(_browser, file)
         print(f"Upload {file}")
         time.sleep(_time_sleep)
@@ -105,5 +107,5 @@ def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
 
 
 if __name__ == "__main__":
-    browser = SeleniumUtil()
+    browser = SeleniumUtil(mode=1)
     login(browser)
