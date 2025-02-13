@@ -181,7 +181,7 @@ def list_files_in_output(directory: str):
 
 def create_file_from_template(template_name: str, new_file_path: str, data: List[Dict[str, any]]):
     # Ensure the output directory exists
-    os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
+    # os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
     template_content = load_template(template_name)
     write_template_to_file(new_file_path, template_content)
     write_data_to_xlsx(new_file_path, data)
