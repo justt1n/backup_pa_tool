@@ -37,6 +37,20 @@ def __extract_offer_items_from_soup(soup: BeautifulSoup) -> list[OfferItem]:
                 price=__extract_price(offer_item_tag),
             )
         )
+    for offer_item_tag in soup.select(".product-item"):
+        offer_item_id = __extract_offer_id(offer_item_tag)
+        offer_items.append(
+            OfferItem(
+                offer_id=offer_item_id,
+                server=__extract_server(offer_item_tag),
+                seller=__extract_seller(offer_item_tag),
+                delivery_time=__extract_delivery_time(offer_item_tag),
+                min_stock=offers_model[offer_item_id].get("min_stock", None),
+                min_unit=offers_model[offer_item_id].get("min_unit", None),
+                quantity=__extract_quantity(offer_item_tag),
+                price=__extract_price(offer_item_tag),
+            )
+        )
         # Sleep interval
         # time.sleep(random.uniform(1, 1.5))
 
@@ -90,7 +104,11 @@ def __extract_seller(
     offer_seller_name_tag = tag.select_one(".username")
     name = offer_seller_name_tag.get_text(strip=True) if offer_seller_name_tag else ""
     if name == "":
-        raise PACrawlerError("Can't extract seller name")
+        try:
+            name = tag.select_one('div.offer-seller-name a span').get_text(strip=True)
+        except Exception:
+            name = ""
+            raise PACrawlerError("Can't extract seller name")
     # seller_soup = __get_soup(f"https://www.playerauctions.com/store/{name}/")
     # try:
     #     feedback_count = __extract_seller_feedback_count(seller_soup)

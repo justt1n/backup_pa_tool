@@ -142,8 +142,8 @@ def process(
                                 discount=row.extra.DISCOUNT,
                                 offer_duration=row.product.DURATION,
                                 delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
-                                delivery_info=row.extra.DELIVERY_INFO,
-                                cover_image=row.extra.COVER_IMAGE,
+                                delivery_info='',
+                                cover_image='',
                                 title=row.product.TITLE,
                                 description=row.product.DESCRIPTION,
                             )
@@ -184,8 +184,8 @@ def process(
                         discount=row.extra.DISCOUNT,
                         offer_duration=row.product.DURATION,
                         delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
-                        delivery_info=row.extra.DELIVERY_INFO,
-                        cover_image=row.extra.COVER_IMAGE,
+                        delivery_info='',
+                        cover_image='',
                         title=row.product.TITLE,
                         description=row.product.DESCRIPTION,
                     )
@@ -202,7 +202,8 @@ def process(
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
         else:
-            print("No price change")
+            print("All seller in blacklist")
+            write_to_log_cell(worksheet, index, "All seller in blacklist")
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
         print("Next row...")

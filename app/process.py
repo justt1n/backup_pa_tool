@@ -48,7 +48,7 @@ def is_valid_offer_item(
     # elif offer_item.seller.feedback_count < product.FEEDBACK:
     #     print(f"Feedback count: {offer_item.seller.feedback_count} for seller {offer_item.seller.name}, ignore")
     #     return False
-    if offer_item.seller in black_list:
+    if offer_item.seller.name in black_list:
         return False
     if offer_item.min_unit is None or offer_item.min_unit > product.MIN_UNIT:
         return False

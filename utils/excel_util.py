@@ -43,8 +43,8 @@ class ItemTemplate(BaseModel):
     unit_price: float
     min_unit_per_order: float
     price_currency: str = "USD"
-    ValueForDiscount: float
-    discount: float
+    ValueForDiscount: str
+    discount: str
     offer_duration: int
     delivery_guarantee: int
     delivery_info: str

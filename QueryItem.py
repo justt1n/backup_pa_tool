@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class ItemQueryItem(BaseModel):
-    ID: str
+    ID: int | str
     game: str
     server: str | None
     faction: str | None
@@ -19,9 +19,9 @@ def query_item(db_path: str, game_id: str) -> ItemQueryItem:
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-
+    game_id = int(game_id)
     # Define the query
-    query = "SELECT * FROM joined_table WHERE LOWER(ID) = LOWER(?)"
+    query = "SELECT * FROM joined_table WHERE ID = ?"
 
     # Execute the query
     cursor.execute(query, (game_id,))
