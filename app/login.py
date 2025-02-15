@@ -81,7 +81,6 @@ def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
     browse_button = _browser.driver.find_element(By.ID, "ckAgreePa")
     browse_button.click()
     _browser.click_by_inner_text("UPLOAD")
-    time.sleep(15)
 
 
 def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
@@ -101,7 +100,6 @@ def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
     browse_button = _browser.driver.find_element(By.ID, "ckAgreePa")
     browse_button.click()
     _browser.click_by_inner_text("UPLOAD")
-    time.sleep(15)
 
 
 if __name__ == "__main__":
