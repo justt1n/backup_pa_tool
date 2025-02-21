@@ -2,6 +2,7 @@ import codecs
 import json
 import os
 from datetime import datetime
+
 from dotenv import load_dotenv
 from gspread.utils import a1_to_rowcol
 
@@ -116,7 +117,8 @@ def process(
                                 currency_per_unit=row.extra.CURRENCY_PER_UNIT,
                                 total_units=min(final_stock, 10000),
                                 minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                                price_per_unit=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
+                                price_per_unit=float(
+                                    f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
                                 ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                                 discount=row.extra.DISCOUNT,
                                 title=row.product.TITLE,
@@ -136,7 +138,8 @@ def process(
                                 item_category2=_item_info.item_category2,
                                 item_category3=_item_info.item_category3,
                                 item_per_unit=row.extra.CURRENCY_PER_UNIT,
-                                unit_price=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
+                                unit_price=float(
+                                    f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
                                 min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                                 ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                                 discount=row.extra.DISCOUNT,
