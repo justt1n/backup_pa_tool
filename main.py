@@ -324,6 +324,8 @@ if __name__ == "__main__":
     while True:
         try:
             process(BIJ_HOST_DATA, gsheet, headless_browser)
+            # test_browser = SeleniumUtil(mode=1)
+            # login(test_browser, False)
         except Exception as e:
             _str_error = f"Error: {e}"
             sheet = Sheet.from_sheet_id(

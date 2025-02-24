@@ -72,13 +72,13 @@ def sendCurrencyFile(_browser: SeleniumUtil, path: str) -> None:
     file_path = os.path.abspath(path)
 
     file_input = WebDriverWait(_browser.driver, 10).until(
-        EC.presence_of_element_located((By.ID, "FileUpload1"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
     )
     # Upload the file using the absolute path
     file_input.send_keys(file_path)
 
     # Optionally, you can click the "BROWSE FILES" button if needed
-    browse_button = _browser.driver.find_element(By.ID, "ckAgreePa")
+    browse_button = _browser.driver.find_element(By.CSS_SELECTOR, "input.ant-checkbox-input")
     browse_button.click()
     _browser.click_by_inner_text("UPLOAD")
 
@@ -91,13 +91,13 @@ def sendItemFile(_browser: SeleniumUtil, path: str) -> None:
     file_path = os.path.abspath(path)
 
     file_input = WebDriverWait(_browser.driver, 10).until(
-        EC.presence_of_element_located((By.ID, "FileUpload1"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
     )
     # Upload the file using the absolute path
     file_input.send_keys(file_path)
 
     # Optionally, you can click the "BROWSE FILES" button if needed
-    browse_button = _browser.driver.find_element(By.ID, "ckAgreePa")
+    browse_button = _browser.driver.find_element(By.CSS_SELECTOR, "input.ant-checkbox-input")
     browse_button.click()
     _browser.click_by_inner_text("UPLOAD")
 

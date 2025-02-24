@@ -9,22 +9,18 @@ from constants import TEMPLATE_FOLDER
 
 
 class CurrencyTemplate(BaseModel):
-    action: str = "Sell"
     game: str | None
     server: str | None
     faction: str | None
     currency_per_unit: float
     total_units: float
     minimum_unit_per_order: float
-    price_currency: str = "USD"
     price_per_unit: float
     ValueForDiscount: str
     discount: str
     title: str
     duration: int
     delivery_guarantee: int
-    delivery_method: str = "Face to Face"
-    delivery_character: str = ""
     delivery_instructions: str = ""
     description: str
 
