@@ -209,26 +209,28 @@ def sample_usage():
                          title="Sell WoW Gold", duration=24, delivery_guarantee=24, description="Sell WoW Gold"),
     ]
 
-    item_templates = [
-        ItemTemplate(game="WoW7", server="US", faction="Horde", item_category1="Item1", item_category2="Item2",
-                     item_category3="Item3", item_per_unit=100, unit_price=0.1, min_unit_per_order=10,
-                     ValueForDiscount=0.1, discount=0.05, offer_duration=24, delivery_guarantee=24,
-                     delivery_info="Face to Face", cover_image="cover.jpg", title="Sell WoW Item",
-                     description="Sell WoW Item"),
-        ItemTemplate(game="WoW8", server="US", faction="Alliance", item_category1="Item1", item_category2="Item2",
-                     item_category3="Item3", item_per_unit=100, unit_price=0.1, min_unit_per_order=10,
-                     ValueForDiscount=0.1, discount=0.05, offer_duration=24, delivery_guarantee=24,
-                     delivery_info="Face to Face", cover_image="cover.jpg", title="Sell WoW Item",
-                     description="Sell WoW Item"),
-    ]
+    # item_templates = [
+    #     ItemTemplate(game="WoW7", server="US", faction="Horde", item_category1="Item1", item_category2="Item2",
+    #                  item_category3="Item3", item_per_unit=100, unit_price=0.1, min_unit_per_order=10,
+    #                  ValueForDiscount=0.1, discount=0.05, offer_duration=24, delivery_guarantee=24,
+    #                  delivery_info="Face to Face", cover_image="cover.jpg", title="Sell WoW Item",
+    #                  description="Sell WoW Item"),
+    #     ItemTemplate(game="WoW8", server="US", faction="Alliance", item_category1="Item1", item_category2="Item2",
+    #                  item_category3="Item3", item_per_unit=100, unit_price=0.1, min_unit_per_order=10,
+    #                  ValueForDiscount=0.1, discount=0.05, offer_duration=24, delivery_guarantee=24,
+    #                  delivery_info="Face to Face", cover_image="cover.jpg", title="Sell WoW Item",
+    #                  description="Sell WoW Item"),
+    # ]
 
     currency_data = currency_templates_to_dicts(currency_templates)
-    item_data = item_templates_to_dicts(item_templates)
+    # item_data = item_templates_to_dicts(item_templates)
     clear_output_directory("storage/pa_template/item")
     create_file_from_template("currency_template.xlsx", "storage/pa_template/currency/new_currency_template.xlsx",
                               currency_data)
-    create_file_from_template("item_template.xlsx", "storage/pa_template/item/new_item_template.xlsx", item_data)
+    # create_file_from_template("item_template.xlsx", "storage/pa_template/item/new_item_template.xlsx", item_data)
     print(list_files_in_output("storage/pa_template/item"))
 
 
 # sample_usage()
+# if __name__ == "__main__":
+#     sample_usage()
