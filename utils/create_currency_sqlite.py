@@ -5,9 +5,6 @@ import sqlite3
 file_path = '/Users/admin/code/backup_pa_tool/storage/Game_Currency_Server_List.xlsx'  # Replace with your file path
 sheet1 = pd.read_excel(file_path, sheet_name=0)  # Server-Faction table
 
-# Add an 'id' column
-sheet1.insert(0, 'id', range(1, len(sheet1) + 1))
-
 # Display the first few rows of the result
 print(sheet1.head())
 

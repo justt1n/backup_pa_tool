@@ -248,7 +248,8 @@ def calculate_price_change(
             row.product.DONGIA_LAMTRON,
         )
     adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust)
-    adjusted_price = min(adjusted_price, product_max_price)
+    if product_max_price != -1:
+        adjusted_price = min(adjusted_price, product_max_price)
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
     return PriceInfo(
         price_min=product_min_price,
