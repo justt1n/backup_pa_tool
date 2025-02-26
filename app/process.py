@@ -50,7 +50,7 @@ def is_valid_offer_item(
     #     return False
     if offer_item.seller.name in black_list:
         return False
-    if offer_item.min_unit is None or offer_item.min_unit < product.MIN_UNIT:
+    if offer_item.min_unit is None or offer_item.min_unit > product.MIN_UNIT:
         return False
     if offer_item.min_stock is None or offer_item.min_stock < product.MINSTOCK:
         return False
