@@ -209,6 +209,7 @@ def calculate_price_change(
                 (closest_offer_item.price / closest_offer_item.quantity - range_adjust),  # type: ignore
                 row.product.DONGIA_LAMTRON,
             )
+            adjusted_price = max(adjusted_price, stock_fake_price[0])
         elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:  # type: ignore
             adjusted_price = stock_fake_min_price
         elif stock_fake_max_price != -1 and stock_fake_price[0] > stock_fake_max_price:  # type: ignore
