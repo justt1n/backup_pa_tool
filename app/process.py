@@ -103,7 +103,7 @@ def identify_stock(
     )
 
     stock_type = StockType.stock_fake
-    if stock_1 != -1 >= stock_info.STOCK_LIMIT:
+    if stock_1 != -1 and stock_1 >= stock_info.STOCK_LIMIT:
         stock_type = StockType.stock_1
     if stock_2 != -1 and stock_2 >= stock_info.STOCK_LIMIT2:
         stock_type = StockType.stock_2

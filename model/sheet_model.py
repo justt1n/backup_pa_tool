@@ -131,7 +131,7 @@ class StockInfo(BaseGSheetModel):
     SHEET_STOCK2: Annotated[str | None, "AK"] = ''
     CELL_STOCK2: Annotated[str | None, "AL"] = ''
     STOCK_LIMIT: Annotated[int | None, "AM"]
-    STOCK_LIMIT2: Annotated[int | None, "AN"] = ''
+    STOCK_LIMIT2: Annotated[int | None, "AN"] = 0
     STOCK_FAKE: Annotated[int | None, "AO"] = None
     PA_IDSHEET_BLACKLIST: Annotated[str | None, "AP"] = ""
     PA_SHEET_BLACKLIST: Annotated[str | None, "AQ"] = ""
