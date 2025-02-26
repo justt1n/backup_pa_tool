@@ -127,11 +127,11 @@ class StockInfo(BaseGSheetModel):
     IDSHEET_STOCK: Annotated[str, "AG"]
     SHEET_STOCK: Annotated[str, "AH"]
     CELL_STOCK: Annotated[str, "AI"]
-    IDSHEET_STOCK2: Annotated[str, "AJ"] = ''
-    SHEET_STOCK2: Annotated[str, "AK"] = ''
-    CELL_STOCK2: Annotated[str, "AL"] = ''
-    STOCK_LIMIT: Annotated[int, "AM"]
-    STOCK_LIMIT2: Annotated[int, "AN"] = ''
+    IDSHEET_STOCK2: Annotated[str | None, "AJ"] = ''
+    SHEET_STOCK2: Annotated[str | None, "AK"] = ''
+    CELL_STOCK2: Annotated[str | None, "AL"] = ''
+    STOCK_LIMIT: Annotated[int | None, "AM"]
+    STOCK_LIMIT2: Annotated[int | None, "AN"] = ''
     STOCK_FAKE: Annotated[int | None, "AO"] = None
     PA_IDSHEET_BLACKLIST: Annotated[str | None, "AP"] = ""
     PA_SHEET_BLACKLIST: Annotated[str | None, "AQ"] = ""
@@ -197,13 +197,13 @@ class StockInfo(BaseGSheetModel):
 
 
 class G2G(BaseGSheetModel):
-    G2G_CHECK: Annotated[int, "AS"]
-    G2G_PROFIT: Annotated[float, "AT"]
-    G2G_PRODUCT_COMPARE: Annotated[str, "AU"]
-    G2G_IDSHEET_PRICESS: Annotated[str, "AV"]
-    G2G_SHEET_PRICESS: Annotated[str, "AW"]
-    G2G_CELL_PRICESS: Annotated[str, "AX"]
-    G2G_QUYDOIDONVI: Annotated[float, "AY"]
+    G2G_CHECK: Annotated[int | None, "AS"] = 0
+    G2G_PROFIT: Annotated[float | None, "AT"] = 0
+    G2G_PRODUCT_COMPARE: Annotated[str | None, "AU"] = ""
+    G2G_IDSHEET_PRICESS: Annotated[str | None, "AV"] = ""
+    G2G_SHEET_PRICESS: Annotated[str | None, "AW"] = ""
+    G2G_CELL_PRICESS: Annotated[str | None, "AX"] = ""
+    G2G_QUYDOIDONVI: Annotated[float | None, "AY"] = 0
 
     def get_g2g_price(
             self
@@ -214,13 +214,13 @@ class G2G(BaseGSheetModel):
 
 
 class FUN(BaseGSheetModel):
-    FUN_CHECK: Annotated[int, "AZ"]
-    FUN_PROFIT: Annotated[float, "BA"]
-    FUN_DISCOUNTFEE: Annotated[float, "BB"]
-    FUN_PRODUCT_COMPARE: Annotated[str, "BC"]
-    FUN_IDSHEET_PRICESS: Annotated[str, "BD"]
-    FUN_SHEET_PRICESS: Annotated[str, "BE"]
-    FUN_CELL_PRICESS: Annotated[str, "BF"]
+    FUN_CHECK: Annotated[int | None, "AZ"]
+    FUN_PROFIT: Annotated[float | None, "BA"] = 0
+    FUN_DISCOUNTFEE: Annotated[float | None, "BB"] = 0
+    FUN_PRODUCT_COMPARE: Annotated[str | None, "BC"] = ""
+    FUN_IDSHEET_PRICESS: Annotated[str | None, "BD"] = ""
+    FUN_SHEET_PRICESS: Annotated[str | None, "BE"] = ""
+    FUN_CELL_PRICESS: Annotated[str | None, "BF"] = ""
     FUN_QUYDOIDONVI: Annotated[float | None, "BG"] = None
 
     def get_fun_price(self) -> float:
@@ -230,11 +230,11 @@ class FUN(BaseGSheetModel):
 
 
 class BIJ(BaseGSheetModel):
-    BIJ_CHECK: Annotated[int, "BH"]
-    BIJ_PROFIT: Annotated[float, "BI"]
+    BIJ_CHECK: Annotated[int | None, "BH"] = 0
+    BIJ_PROFIT: Annotated[float | None, "BI"] = 0
     # BIJ_NAME: Annotated[str, "BG"]
     # BIJ_SERVER: Annotated[str, "BH"]
-    BIJ_PRODUCT_COMPARE: Annotated[str, "BJ"]
+    BIJ_PRODUCT_COMPARE: Annotated[str | None, "BJ"] = ''
     BIJ_IDSHEET_PRICESS: Annotated[str | None, "BK"] = None
     BIJ_SHEET_PRICESS: Annotated[str | None, "BL"] = None
     BIJ_CELL_PRICESS: Annotated[str | None, "BM"] = None
