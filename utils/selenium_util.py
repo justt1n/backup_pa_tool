@@ -60,6 +60,7 @@ class SeleniumUtil:
         element = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), '{text}')]"))
         )
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
         element.click()
 
     def close(self):

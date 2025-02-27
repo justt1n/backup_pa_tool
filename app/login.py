@@ -60,7 +60,7 @@ def login(
             time.sleep(_time_sleep)
             print(f"Sleeping for {_time_sleep} seconds")
 
-    time.sleep(15)
+    time.sleep(30)
     _browser.close()
 
 
