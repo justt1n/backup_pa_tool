@@ -41,26 +41,19 @@ def login(
             time.sleep(3)
         except Exception:
             break
-    try:
-        _time_sleep = float(os.getenv("TIME_SLEEP"))
-    except Exception:
-        _time_sleep = 0
     ### upload currency file
     for file in list_files_in_output('storage/output/currency'):
         sendCurrencyFile(_browser, file)
         print(f"Uploaded")
-        time.sleep(_time_sleep)
-        print(f"Sleeping for {_time_sleep} seconds")
+        time.sleep(30)
 
     if isHaveItem:
         ### upload item file
         for file in list_files_in_output('storage/output/item'):
             sendItemFile(_browser, file)
             print(f"Uploaded")
-            time.sleep(_time_sleep)
-            print(f"Sleeping for {_time_sleep} seconds")
+            time.sleep(30)
 
-    time.sleep(30)
     _browser.close()
 
 

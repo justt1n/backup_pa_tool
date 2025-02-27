@@ -324,6 +324,11 @@ if __name__ == "__main__":
     while True:
         try:
             process(BIJ_HOST_DATA, gsheet, headless_browser)
+            try:
+                _time_sleep = float(os.getenv("TIME_SLEEP"))
+            except Exception:
+                _time_sleep = 0
+            print(f"Sleeping for {_time_sleep} seconds")
             # test_browser = SeleniumUtil(mode=1)
             # login(test_browser, False)
         except Exception as e:
