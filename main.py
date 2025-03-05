@@ -139,7 +139,7 @@ def process(
                                 item_category3=_item_info.item_category3,
                                 item_per_unit=row.extra.CURRENCY_PER_UNIT,
                                 unit_price=float(
-                                    f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
+                                    f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.2f}"),
                                 min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                                 ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                                 discount=row.extra.DISCOUNT,
