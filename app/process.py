@@ -247,7 +247,7 @@ def calculate_price_change(
             min_offer_item.price - range_adjust,  # type: ignore
             row.product.DONGIA_LAMTRON,
         )
-    adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust)
+    adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust, product_min_price)
     if product_max_price != -1:
         adjusted_price = min(adjusted_price, product_max_price)
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
