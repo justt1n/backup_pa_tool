@@ -121,9 +121,9 @@ def calculate_price_stock_fake(
     g2g_min_price = None
     if row.g2g.G2G_CHECK == 1:
         try:
-            g2g_min_price = (round(row.g2g.get_g2g_price()
+            g2g_min_price = (row.g2g.get_g2g_price()
                                    * row.g2g.G2G_PROFIT
-                                   * row.g2g.G2G_QUYDOIDONVI, 4), "Get directly from sheet")
+                                   * row.g2g.G2G_QUYDOIDONVI, "Get directly from sheet")
             print(f"\nG2G min price: {g2g_min_price}")
         except Exception as e:
             raise Exception(f"Error getting G2G price: {e}")
@@ -131,10 +131,10 @@ def calculate_price_stock_fake(
     fun_min_price = None
     if row.fun.FUN_CHECK == 1:
         try:
-            fun_min_price = (round(row.fun.get_fun_price()
+            fun_min_price = (row.fun.get_fun_price()
                                    * row.fun.FUN_PROFIT
                                    * row.fun.FUN_DISCOUNTFEE
-                                   * row.fun.FUN_QUYDOIDONVI, 4), "Get directly from sheet")
+                                   * row.fun.FUN_QUYDOIDONVI, "Get directly from sheet")
         except Exception as e:
             raise Exception(f"Error getting FUN price: {e}")
 
@@ -142,10 +142,10 @@ def calculate_price_stock_fake(
     CNY_RATE = getCNYRate()
     if row.bij.BIJ_CHECK == 1:
         try:
-            bij_min_price = (round(row.bij.get_bij_price()
+            bij_min_price = (row.bij.get_bij_price()
                                     * row.bij.BIJ_PROFIT
                                     * row.bij.BIJ_QUYDOIDONVI
-                                    * CNY_RATE, 4), "Get directly from sheet")
+                                    * CNY_RATE, "Get directly from sheet")
         except Exception as e:
             raise Exception(f"Error getting BIJ price: {e}")
 
@@ -178,7 +178,7 @@ def calculate_price_change(
             black_list=black_list
         )
     )
-    min_offer_item.price = round(min_offer_item.price / min_offer_item.quantity, 4)
+    min_offer_item.price = min_offer_item.price / min_offer_item.quantity
     stock_fake_items = None
     if stock_type is StockType.stock_1:
         product_min_price = row.product.min_price_stock_1(gsheet)
