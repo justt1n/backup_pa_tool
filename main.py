@@ -200,8 +200,8 @@ def process(
             for offer_item in offer_items:
                 if not offer_item.seller.canGetFeedback:
                     log_str += f"Can't get feedback from {offer_item.seller.name}\n"
-            log_str += get_update_str(sorted_offer_items[0], item_info, stock_fake_items)
-            log_str += get_top_pa_offers_str(sorted_offer_items, sorted_offer_items[0])
+            log_str += get_update_str(sorted_offer_items[0], item_info, stock_fake_items, row.product.DONGIA_LAMTRON)
+            log_str += get_top_pa_offers_str(sorted_offer_items, sorted_offer_items[0], row.product.DONGIA_LAMTRON)
             write_to_log_cell(worksheet, index, log_str)
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
@@ -246,22 +246,24 @@ def upload_data_to_site(browser: SeleniumUtil, isHaveItem: bool):
 ### LOG FUNC ###
 def get_top_pa_offers_str(
         sorted_offer_items: list[OfferItem]
-        , offer_item: OfferItem) -> str:
+        , offer_item: OfferItem
+        , round_num
+) -> str:
     _str = "Top 3 PA offers:\n"
     for i, item in enumerate(sorted_offer_items[:3]):
         if i == 0:
-            _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, 4)}\n"
+            _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num)}\n"
             continue
-        _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, 4)}\n"
+        _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num)}\n"
     return _str
 
 
-def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items: list) -> str:
+def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items: list, round_num) -> str:
     quantity = offer_item.quantity
     if item_info is None:
         return "No update\n"
     _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    _str = f"Cập nhật thành công {round(item_info.adjusted_price, 4)} lúc {_current_time}\n"
+    _str = f"Cập nhật thành công {round(item_info.adjusted_price, round_num)} lúc {_current_time}\n"
 
     if item_info.stock_type is StockType.stock_1:
         _str += f"Stocktype=stock_1: {item_info.stock_num_info.stock_1}\n"
