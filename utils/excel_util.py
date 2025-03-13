@@ -134,8 +134,9 @@ def write_data_to_xlsx(file_path: str, data: List[Dict[str, any]]):
             group.reset_index(drop=True, inplace=True)
 
             # Save each group to a separate Excel file
-            if "Description" in group.columns:
-                group.loc[1:, "Description"] = ""
+            if "Item Category 1" not in group.columns:
+                if "Description" in group.columns:
+                    group.loc[1:, "Description"] = ""
             # Ensure the "Description" column keeps only the first value
             try:
                 if "Price Per Unit" in group.columns:
