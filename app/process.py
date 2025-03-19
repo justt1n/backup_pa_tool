@@ -156,7 +156,7 @@ def calculate_price_stock_fake(
 
 
 @time_execution
-#TODO
+# TODO: this is change price logic
 @retry(retries=3, delay=0.25, exception=Exception)
 def calculate_price_change(
         gsheet: GSheet,
@@ -170,15 +170,28 @@ def calculate_price_change(
         gsheet,
         row.stock_info,
     )
-    offer_items_copy = copy.deepcopy(offer_items)
-    min_offer_item = OfferItem.min_offer_item(
-        filter_valid_offer_items(
-            row.product,
-            offer_items_copy,
-            black_list=black_list
-        )
+    # Filter valid offer items and sort by price
+    valid_offer_items = filter_valid_offer_items(
+        row.product,
+        copy.deepcopy(offer_items),
+        black_list=black_list
     )
+
+    # Sort by price per unit (low to high)
+    sorted_offer_items = sorted(valid_offer_items, key=lambda item: item.price / item.quantity)
+
+    if not sorted_offer_items:
+        return None
+
+    # Get lowest price offer item
+    min_offer_item = sorted_offer_items[0]
     min_offer_item.price = min_offer_item.price / min_offer_item.quantity
+
+    # Get second-best price if available
+    second_best_price = None
+    if len(sorted_offer_items) > 1:
+        second_best_price = sorted_offer_items[1].price / sorted_offer_items[1].quantity
+
     stock_fake_items = None
     if stock_type is StockType.stock_1:
         product_min_price = row.product.min_price_stock_1(gsheet)
@@ -194,11 +207,14 @@ def calculate_price_change(
         )
         if stock_fake_price is None:
             return None
+
         stock_fake_min_price = float(row.product.get_stock_fake_min_price())
         stock_fake_max_price = float(row.product.get_stock_fake_max_price())
         range_adjust = random.uniform(
             row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
         )
+
+        # Special case when min and max are not set
         if int(stock_fake_min_price) == -1 and int(stock_fake_max_price) == -1:
             valid_offer_items = [item for item in offer_items if item.seller.name not in black_list]
             closest_offer_item = min(valid_offer_items, key=lambda item: abs(item.price - stock_fake_price[0]))
@@ -206,23 +222,33 @@ def calculate_price_change(
                 row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
             )
             adjusted_price = round(
-                (closest_offer_item.price / closest_offer_item.quantity - range_adjust),  # type: ignore
+                (closest_offer_item.price / closest_offer_item.quantity - range_adjust),
                 row.product.DONGIA_LAMTRON,
             )
             adjusted_price = max(adjusted_price, stock_fake_price[0])
-        elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:  # type: ignore
-            adjusted_price = stock_fake_min_price
-        elif stock_fake_max_price != -1 and stock_fake_price[0] > stock_fake_max_price:  # type: ignore
+        # Check if we can beat the lowest price
+        elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:
+            # Can't beat lowest price - check for second best
+            if second_best_price and second_best_price > stock_fake_min_price:
+                adjusted_price = round(
+                    second_best_price - range_adjust,
+                    row.product.DONGIA_LAMTRON,
+                )
+            else:
+                adjusted_price = stock_fake_min_price
+        elif stock_fake_max_price != -1 and stock_fake_price[0] > stock_fake_max_price:
             adjusted_price = stock_fake_max_price
         else:
             adjusted_price = round(
-                stock_fake_price[0] + range_adjust,  # type: ignore
+                stock_fake_price[0] + range_adjust,
                 row.product.DONGIA_LAMTRON,
             )
+
         adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust, stock_fake_min_price)
         if stock_fake_max_price != -1:
             adjusted_price = min(adjusted_price, stock_fake_max_price)
         adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+
         return PriceInfo(
             price_min=round(stock_fake_min_price, 4),
             price_mac=round(stock_fake_max_price, 4),
@@ -232,29 +258,40 @@ def calculate_price_change(
             stock_num_info=stock_num_info,
         ), stock_fake_items
 
+    # For stock_1 and stock_2 types
     range_adjust = random.uniform(
         row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
     )
-    if min_offer_item.price < product_min_price:  # type: ignore
-        adjusted_price = product_min_price
-    elif min_offer_item.price > product_max_price:  # type: ignore
+
+    if min_offer_item.price < product_min_price:
+        # Can't beat lowest price - use second best if available
+        if second_best_price and second_best_price > product_min_price:
+            adjusted_price = round(
+                second_best_price - range_adjust,
+                row.product.DONGIA_LAMTRON,
+            )
+        else:
+            adjusted_price = product_min_price
+    elif min_offer_item.price > product_max_price:
         adjusted_price = product_max_price
     else:
         range_adjust = random.uniform(
             row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
         )
         adjusted_price = round(
-            min_offer_item.price - range_adjust,  # type: ignore
+            min_offer_item.price - range_adjust,
             row.product.DONGIA_LAMTRON,
         )
+
     adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust, product_min_price)
     if product_max_price != -1:
         adjusted_price = min(adjusted_price, product_max_price)
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+
     return PriceInfo(
         price_min=product_min_price,
         price_mac=product_max_price,
-        adjusted_price=round(adjusted_price, row.product.DONGIA_LAMTRON),  # type: ignore
+        adjusted_price=round(adjusted_price, row.product.DONGIA_LAMTRON),
         offer_item=min_offer_item,
         stock_type=stock_type,
         range_adjust=range_adjust,
