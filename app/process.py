@@ -1,22 +1,21 @@
+import copy
 import random
 from typing import Any
 
 import gspread
-import copy
+
 from decorator.retry import retry
 from decorator.time_execution import time_execution
-from model.crawl_model import G2GOfferItem, OfferItem, DeliveryTime, FUNOfferItem, StockNumInfo
+from model.crawl_model import G2GOfferItem, OfferItem, DeliveryTime, StockNumInfo
 from model.enums import StockType
 from model.payload import PriceInfo, Row
 from model.sheet_model import G2G, Product, StockInfo
-from utils.biji_extract import bij_lowest_price
-from utils.fun_extract import fun_extract_offer_items
+from utils.common_utils import getCNYRate
 from utils.g2g_extract import g2g_extract_offer_items
 from utils.ggsheet import (
     GSheet,
 )
 from utils.selenium_util import SeleniumUtil
-from utils.common_utils import getCNYRate
 
 
 def get_row_run_index(
@@ -122,8 +121,8 @@ def calculate_price_stock_fake(
     if row.g2g.G2G_CHECK == 1:
         try:
             g2g_min_price = (row.g2g.get_g2g_price()
-                                   * row.g2g.G2G_PROFIT
-                                   * row.g2g.G2G_QUYDOIDONVI, "Get directly from sheet")
+                             * row.g2g.G2G_PROFIT
+                             * row.g2g.G2G_QUYDOIDONVI, "Get directly from sheet")
             print(f"\nG2G min price: {g2g_min_price}")
         except Exception as e:
             raise Exception(f"Error getting G2G price: {e}")
@@ -132,9 +131,9 @@ def calculate_price_stock_fake(
     if row.fun.FUN_CHECK == 1:
         try:
             fun_min_price = (row.fun.get_fun_price()
-                                   * row.fun.FUN_PROFIT
-                                   * row.fun.FUN_DISCOUNTFEE
-                                   * row.fun.FUN_QUYDOIDONVI, "Get directly from sheet")
+                             * row.fun.FUN_PROFIT
+                             * row.fun.FUN_DISCOUNTFEE
+                             * row.fun.FUN_QUYDOIDONVI, "Get directly from sheet")
         except Exception as e:
             raise Exception(f"Error getting FUN price: {e}")
 
@@ -143,9 +142,9 @@ def calculate_price_stock_fake(
     if row.bij.BIJ_CHECK == 1:
         try:
             bij_min_price = (row.bij.get_bij_price()
-                                    * row.bij.BIJ_PROFIT
-                                    * row.bij.BIJ_QUYDOIDONVI
-                                    * CNY_RATE, "Get directly from sheet")
+                             * row.bij.BIJ_PROFIT
+                             * row.bij.BIJ_QUYDOIDONVI
+                             * CNY_RATE, "Get directly from sheet")
         except Exception as e:
             raise Exception(f"Error getting BIJ price: {e}")
 
@@ -156,7 +155,7 @@ def calculate_price_stock_fake(
 
 
 @time_execution
-#TODO
+# TODO
 @retry(retries=3, delay=0.25, exception=Exception)
 def calculate_price_change(
         gsheet: GSheet,
@@ -178,6 +177,7 @@ def calculate_price_change(
             black_list=black_list
         )
     )
+    _ref_seller = min_offer_item.seller.name
     min_offer_item.price = min_offer_item.price / min_offer_item.quantity
     stock_fake_items = None
     if stock_type is StockType.stock_1:
@@ -223,6 +223,13 @@ def calculate_price_change(
         if stock_fake_max_price != -1:
             adjusted_price = min(adjusted_price, stock_fake_max_price)
         adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+        sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
+        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, random.uniform(
+            row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
+        ))
+        if (closest_price != -1):
+            adjusted_price = closest_price
+            _ref_seller = closest_seller
         return PriceInfo(
             price_min=round(stock_fake_min_price, 4),
             price_mac=round(stock_fake_max_price, 4),
@@ -230,6 +237,7 @@ def calculate_price_change(
             offer_item=min_offer_item,
             stock_type=stock_type,
             stock_num_info=stock_num_info,
+            ref_seller=_ref_seller
         ), stock_fake_items
 
     range_adjust = random.uniform(
@@ -251,6 +259,14 @@ def calculate_price_change(
     if product_max_price != -1:
         adjusted_price = min(adjusted_price, product_max_price)
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+
+    sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
+    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, random.uniform(
+        row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
+    ))
+    if (closest_price != -1):
+        adjusted_price = closest_price
+        _ref_seller = closest_seller
     return PriceInfo(
         price_min=product_min_price,
         price_mac=product_max_price,
@@ -259,6 +275,7 @@ def calculate_price_change(
         stock_type=stock_type,
         range_adjust=range_adjust,
         stock_num_info=stock_num_info,
+        ref_seller=_ref_seller
     ), stock_fake_items
 
 
@@ -273,3 +290,30 @@ def g2g_lowest_price(
         g2g.get_g2g_price(),
     )
     return G2GOfferItem.min_offer_item(filtered_g2g_offer_items)
+
+
+def get_closest_offer_item(
+        sorted_offer_items: list[OfferItem],
+        price: float,
+        profit: float
+):
+    if len(sorted_offer_items) >= 1:
+        if price < sorted_offer_items[0].price:
+            return -1, "Keep"
+    # Filter offer items that have a price above the target price
+    above_price_items = [item for item in sorted_offer_items if (item.price / item.quantity) > price]
+
+    if not above_price_items:
+        # If no items are above the target price, return the item with the highest price
+        closest_item = max(sorted_offer_items, key=lambda item: item.price / item.quantity)
+    else:
+        # Find the item with the lowest price among those above the target price
+        closest_item = min(above_price_items, key=lambda item: item.price / item.quantity)
+
+    # Create a copy of the closest item
+    adjusted_item = copy.deepcopy(closest_item)
+
+    # Adjust the price by the profit factor
+    adjusted_item.price = (adjusted_item.price / adjusted_item.quantity) - profit
+
+    return adjusted_item.price , adjusted_item.seller.name

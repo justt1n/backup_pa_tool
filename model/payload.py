@@ -139,4 +139,5 @@ class PriceInfo(BaseModel):
     offer_item: OfferItem
     stock_type: StockType
     stock_num_info: StockNumInfo
+    ref_seller: str | None
 
