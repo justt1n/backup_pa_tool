@@ -179,6 +179,7 @@ def calculate_price_change(
     )
     _ref_seller = min_offer_item.seller.name
     min_offer_item.price = min_offer_item.price / min_offer_item.quantity
+    _ref_price = min_offer_item.price
     stock_fake_items = None
     if stock_type is StockType.stock_1:
         product_min_price = row.product.min_price_stock_1(gsheet)
@@ -224,20 +225,21 @@ def calculate_price_change(
             adjusted_price = min(adjusted_price, stock_fake_max_price)
         adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
         sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
-        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, random.uniform(
-            row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
-        ))
+        _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
+        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit)
         if (closest_price != -1):
             adjusted_price = closest_price
             _ref_seller = closest_seller
+            _ref_price = closest_price + _profit
         return PriceInfo(
             price_min=round(stock_fake_min_price, 4),
             price_mac=round(stock_fake_max_price, 4),
-            adjusted_price=round(adjusted_price, 4),
+            adjusted_price=adjusted_price,
             offer_item=min_offer_item,
             stock_type=stock_type,
             stock_num_info=stock_num_info,
-            ref_seller=_ref_seller
+            ref_seller=_ref_seller,
+            ref_price=_ref_price
         ), stock_fake_items
 
     range_adjust = random.uniform(
@@ -261,21 +263,22 @@ def calculate_price_change(
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
 
     sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
-    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, random.uniform(
-        row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
-    ))
+    _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
+    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit)
     if (closest_price != -1):
         adjusted_price = closest_price
         _ref_seller = closest_seller
+        _ref_price = closest_price + _profit
     return PriceInfo(
         price_min=product_min_price,
         price_mac=product_max_price,
-        adjusted_price=round(adjusted_price, row.product.DONGIA_LAMTRON),  # type: ignore
+        adjusted_price=adjusted_price,
         offer_item=min_offer_item,
         stock_type=stock_type,
         range_adjust=range_adjust,
         stock_num_info=stock_num_info,
-        ref_seller=_ref_seller
+        ref_seller=_ref_seller,
+        ref_price=_ref_price
     ), stock_fake_items
 
 

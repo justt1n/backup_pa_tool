@@ -140,4 +140,5 @@ class PriceInfo(BaseModel):
     stock_type: StockType
     stock_num_info: StockNumInfo
     ref_seller: str | None
+    ref_price: float | None
 
