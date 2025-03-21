@@ -159,7 +159,7 @@ def process(
                         server=_currency_info.Server,
                         faction=_currency_info.Faction,
                         currency_per_unit=row.extra.CURRENCY_PER_UNIT,
-                        total_units=min(final_stock, 10000),
+                        total_units=min(final_stock, 9999),
                         minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                         price_per_unit=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
@@ -182,7 +182,7 @@ def process(
                         item_category3=_item_info.item_category3,
                         item_per_unit=row.extra.CURRENCY_PER_UNIT,
                         unit_price=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.2f}"),
-                        total_units=min(final_stock, 10000),
+                        total_units=min(final_stock, 9999),
                         min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
                         ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
                         discount=row.extra.DISCOUNT,
@@ -263,7 +263,7 @@ def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items
     if item_info is None:
         return "No update\n"
     _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    _str = f"Cập nhật thành công {round(item_info.adjusted_price, round_num)} lúc {_current_time}\n"
+    _str = f"Cập nhật thành công {round(item_info.adjusted_price, round_num)} lúc {_current_time} theo seller: {item_info.ref_seller}\n"
 
     if item_info.stock_type is StockType.stock_1:
         _str += f"Stocktype=stock_1: {item_info.stock_num_info.stock_1}\n"

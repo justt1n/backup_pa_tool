@@ -146,7 +146,7 @@ def write_data_to_xlsx(file_path: str, data: List[Dict[str, any]]):
 
             # Cap "Total Units" to a maximum of 10,000 if applicable
             if "Total Units" in group.columns:
-                group.loc[group["Total Units"] > 10000, "Total Units"] = 10000
+                group.loc[group["Total Units"] > 10000, "Total Units"] = 9999
             game_file_path = os.path.join(os.path.dirname(file_path), f"{game}.xlsx")
             group.to_excel(game_file_path, index=False, sheet_name="offer details")
             print("saved to", game_file_path)
