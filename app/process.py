@@ -230,8 +230,8 @@ def calculate_price_change(
         adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
         sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
         _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
-        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit)
-        if (closest_price != -1):
+        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit, black_list)
+        if closest_price != -1:
             adjusted_price = closest_price
             _ref_seller = closest_seller
             _ref_price = closest_price + _profit
@@ -270,8 +270,8 @@ def calculate_price_change(
 
     sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
     _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
-    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit)
-    if (closest_price != -1):
+    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit, black_list)
+    if closest_price != -1:
         adjusted_price = closest_price
         _ref_seller = closest_seller
         _ref_price = closest_price + _profit
@@ -304,13 +304,14 @@ def g2g_lowest_price(
 def get_closest_offer_item(
         sorted_offer_items: list[OfferItem],
         price: float,
-        profit: float
+        profit: float,
+        black_list: list[str]
 ):
     if len(sorted_offer_items) >= 1:
         if price < sorted_offer_items[0].price:
             return -1, "Keep"
     # Filter offer items that have a price above the target price
-    above_price_items = [item for item in sorted_offer_items if (item.price / item.quantity) > price]
+    above_price_items = [item for item in sorted_offer_items if (item.price / item.quantity) > price and item.seller.name not in black_list]
 
     if not above_price_items:
         # If no items are above the target price, return the item with the highest price
