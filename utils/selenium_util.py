@@ -1,4 +1,3 @@
-import os
 import pathlib
 import time
 
@@ -39,6 +38,7 @@ class SeleniumUtil:
         elif mode == 2:
             _chrome_options.add_argument("--headless")
             _chrome_options.add_argument("--no-sandbox")
+            _chrome_options.add_argument('--disable-gpu')
 
             for _ in range(_retry_time):
                 try:
@@ -53,7 +53,11 @@ class SeleniumUtil:
             raise ValueError("Invalid mode")
 
     def get(self, url):
-        self.driver.get(url)
+        try:
+            self.driver.get(url)
+        except WebDriverException as e:
+            print(f"Error navigating to {url}: {e}")
+            raise WebDriverException("Block by site")
 
     @retry(retries=10, delay=1.2, exception=WebDriverException)
     def click_by_inner_text(self, text):

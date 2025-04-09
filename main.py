@@ -2,6 +2,7 @@ import codecs
 import json
 import os
 from datetime import datetime
+from typing import List
 
 from dotenv import load_dotenv
 from gspread.utils import a1_to_rowcol
@@ -58,9 +59,11 @@ def read_file_with_encoding(file_path, encoding='utf-8'):
 def process(
         BIJ_HOST_DATA: dict,
         gsheet: GSheet,
-        browser: SeleniumUtil
+        browser_list: List[SeleniumUtil]
 ):
     print("process")
+    browser = browser_list[0]
+    normal_browser = browser_list[1]
     try:
         sheet = Sheet.from_sheet_id(
             gsheet=gsheet,
@@ -91,7 +94,7 @@ def process(
             continue
         if not isinstance(row, Row):
             continue
-        offer_items = extract_offer_items(row.product.PRODUCT_COMPARE)
+        offer_items = extract_offer_items(row.product.PRODUCT_COMPARE, normal_browser)
         sorted_offer_items = sorted(offer_items, key=lambda x: x.price)
         item_info, stock_fake_items = None, None
         if is_change_price(row.product, offer_items, pa_blacklist):
@@ -324,9 +327,12 @@ if __name__ == "__main__":
     BIJ_HOST_DATA = read_file_with_encoding(constants.DATA_PATH, encoding='utf-8')
     gsheet = GSheet(constants.KEY_PATH)
     headless_browser = SeleniumUtil(mode=2)
+    normal_browser = SeleniumUtil(mode=1)
+    normal_browser.driver.minimize_window()
+    browser_list = [headless_browser, normal_browser]
     while True:
         try:
-            process(BIJ_HOST_DATA, gsheet, headless_browser)
+            process(BIJ_HOST_DATA, gsheet, browser_list)
             try:
                 _time_sleep = float(os.getenv("TIME_SLEEP"))
             except Exception:

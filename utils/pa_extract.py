@@ -1,29 +1,18 @@
-import requests
-
 import execjs
 from bs4 import BeautifulSoup, Tag
+from requests import HTTPError
 
-from decorator.time_execution import time_execution
+from decorator.retry import retry
 from model.crawl_model import Seller, DeliveryTime, TimeUnit, OfferItem
 from .exceptions import PACrawlerError
-from decorator.retry import retry
-from requests import HTTPError
+from .selenium_util import SeleniumUtil
 
 
 @retry(retries=3, delay=1.2, exception=HTTPError)
-def __get_soup(
-        url: str,
-) -> BeautifulSoup:
-    headers_agents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0",
-        "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko",
-    ]
-    random_agent_from_list = headers_agents[int(random.uniform(0, len(headers_agents)))]
-    res = requests.get(url, headers={"User-Agent": random_agent_from_list})
-    # res.raise_for_status()
-    return BeautifulSoup(res.text, "html.parser")
+def __get_soup(url: str, browser: SeleniumUtil) -> BeautifulSoup:
+    browser.driver.get(url)
+    res = browser.driver.page_source
+    return BeautifulSoup(res, "html.parser")
 
 
 def __extract_offer_items_from_soup(soup: BeautifulSoup) -> list[OfferItem]:
@@ -188,7 +177,8 @@ def __extract_min_unit_and_min_stock(
 @retry(5, delay=0.25, exception=PACrawlerError)
 def extract_offer_items(
         url: str,
+        browser: SeleniumUtil,
 ) -> list[OfferItem]:
     return __extract_offer_items_from_soup(
-        __get_soup(url),
+        __get_soup(url, browser),
     )
