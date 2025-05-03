@@ -17,6 +17,15 @@ def login(
     _browser.get(
         "https://www.playerauctions.com/wow-classic-gold/?Serverid=13563&Quantity=6000&PageIndex=1"
     )
+
+    ## start: accept cookies
+    try:
+        cookies_tag = _browser.driver.find_element(By.CSS_SELECTOR, ".btn.chooese-btn.btn-shadow.allow-all.accept-btn-ok")
+        cookies_tag.click()
+    except Exception:
+        print("No cookies tag")
+    ## end: accept cookies
+
     _browser.click_by_inner_text("LOG IN")
 
     username_tag = _browser.driver.find_element(By.ID, "username")
