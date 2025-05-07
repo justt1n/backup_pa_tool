@@ -97,11 +97,14 @@ def process(
         offer_items = extract_offer_items(row.product.PRODUCT_COMPARE, normal_browser)
         sorted_offer_items = sorted(offer_items, key=lambda x: x.price)
         item_info, stock_fake_items = None, None
-        if is_change_price(row.product, offer_items, pa_blacklist):
+        if True:
             try:
                 [item_info, stock_fake_items] = calculate_price_change(
                     gsheet, row, offer_items, BIJ_HOST_DATA, browser, pa_blacklist
                 )
+                if item_info is None:
+                    print("No item info")
+                    continue
             except Exception as e:
                 print(f"Error calculating price change: {e}")
                 continue
@@ -208,10 +211,10 @@ def process(
             write_to_log_cell(worksheet, index, log_str)
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
-        else:
-            print("No valid offer item")
-            _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\nNo valid offer item\n"
-            write_to_log_cell(worksheet, index, _current_time, log_type="time")
+        # else:
+        #     print("No valid offer item")
+        #     _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\nNo valid offer item\n"
+        #     write_to_log_cell(worksheet, index, _current_time, log_type="time")
         print("Next row...")
     currency_template = currency_templates_to_dicts(currency_template)
     is_have_item = False
