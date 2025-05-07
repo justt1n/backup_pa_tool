@@ -255,9 +255,9 @@ def get_top_pa_offers_str(
     _str = "Top 3 PA offers:\n"
     for i, item in enumerate(sorted_offer_items[:3]):
         if i == 0:
-            _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num)}\n"
+            _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num):.{round_num}f}\n"
             continue
-        _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num)}\n"
+        _str += f"{i + 1}: {item.seller.name}: {round(item.price / offer_item.quantity, round_num):.{round_num}f}\n"
     return _str
 
 
@@ -266,7 +266,7 @@ def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items
     if item_info is None:
         return "No update\n"
     _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    _str = f"Cập nhật thành công {round(item_info.adjusted_price, round_num)} lúc {_current_time} theo seller: {item_info.ref_seller}\n"
+    _str = f"Cập nhật thành công {round(item_info.adjusted_price, round_num):.{round_num}f} lúc {_current_time} theo seller: {item_info.ref_seller}\n"
 
     if item_info.stock_type is StockType.stock_1:
         _str += f"Stocktype=stock_1: {item_info.stock_num_info.stock_1}\n"
@@ -276,7 +276,9 @@ def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items
         _str += f"Stocktype=stock_fake: {item_info.stock_num_info.stock_fake}\n"
 
     if stock_fake_items is None:
-        _str += f"PriceMin = {item_info.price_min}, PriceMax = {item_info.price_mac},\n"
+        _price_min_formatted = f"{item_info.price_min:.{round_num}f}"
+        _price_max_formatted = f"{item_info.price_mac:.{round_num}f}"
+        _str += f"PriceMin = {_price_min_formatted}, PriceMax = {_price_max_formatted},\n"
         return _str + "\n"
     if stock_fake_items:
         _pmin = item_info.price_min

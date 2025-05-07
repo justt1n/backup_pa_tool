@@ -155,7 +155,6 @@ def calculate_price_stock_fake(
 
 
 @time_execution
-# TODO: this is change price logic
 @retry(retries=3, delay=0.25, exception=Exception)
 def calculate_price_change(
         gsheet: GSheet,
@@ -170,76 +169,133 @@ def calculate_price_change(
         row.stock_info,
     )
     offer_items_copy = copy.deepcopy(offer_items)
-    min_offer_item = OfferItem.min_offer_item(
-        filter_valid_offer_items(
-            row.product,
-            offer_items_copy,
-            black_list=black_list
-        )
+
+    # Ensure min_offer_item is valid before proceeding
+    valid_filtered_offer_items = filter_valid_offer_items(
+        row.product,
+        offer_items_copy,  # Use the copy for filtering
+        black_list=black_list
     )
+    if not valid_filtered_offer_items:
+        # print("No valid offer items after initial filtering for min_offer_item.")
+        return None  # Cannot proceed without a base offer item
+
+    min_offer_item = OfferItem.min_offer_item(valid_filtered_offer_items)
+
+    if min_offer_item is None or min_offer_item.quantity == 0:  # Check for None and zero quantity
+        # print("Min offer item is None or has zero quantity.")
+        return None
+
     _ref_seller = min_offer_item.seller.name
-    min_offer_item.price = min_offer_item.price / min_offer_item.quantity
+    min_offer_item.price = min_offer_item.price / min_offer_item.quantity  # Price per unit
     _ref_price = min_offer_item.price
     stock_fake_items = None
+
+    product_min_price: float = -1.0
+    product_max_price: float = -1.0
+    adjusted_price: float = 0.0
+    range_adjust: float = 0.0
+
     if stock_type is StockType.stock_1:
-        product_min_price = row.product.min_price_stock_1(gsheet)
-        product_max_price = row.product.max_price_stock_1(gsheet)
+        product_min_price = float(row.product.min_price_stock_1(gsheet))
+        product_max_price = float(row.product.max_price_stock_1(gsheet))
 
     elif stock_type is StockType.stock_2:
-        product_min_price = row.product.min_price_stock_2(gsheet)
-        product_max_price = row.product.max_price_stock_2(gsheet)
+        product_min_price = float(row.product.min_price_stock_2(gsheet))
+        product_max_price = float(row.product.max_price_stock_2(gsheet))
 
     elif stock_type is StockType.stock_fake:
-        (stock_fake_price, stock_fake_items) = calculate_price_stock_fake(
+        stock_fake_price_tuple, stock_fake_items = calculate_price_stock_fake(
             gsheet=gsheet, row=row, quantity=min_offer_item.quantity, hostdata=BIJ_HOST_DATA, selenium=selenium
         )
-        if stock_fake_price is None:
+        if stock_fake_price_tuple is None or stock_fake_price_tuple[0] <= 0:  # Ensure valid price
+            # print("Stock fake price is None or not positive.")
             return None
 
-        stock_fake_min_price = float(row.product.get_stock_fake_min_price())
-        stock_fake_max_price = float(row.product.get_stock_fake_max_price())
-        range_adjust = random.uniform(
-            row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
-        )
+        stock_fake_price_value = stock_fake_price_tuple[0]
 
-        # Special case when min and max are not set
-        if int(stock_fake_min_price) == -1 and int(stock_fake_max_price) == -1:
-            valid_offer_items = [item for item in offer_items if item.seller.name not in black_list]
-            closest_offer_item = min(valid_offer_items, key=lambda item: abs(item.price - stock_fake_price[0]))
-            range_adjust = random.uniform(
-                row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
+        # These are the min/max for the "stock_fake" scenario itself
+        product_min_price = float(row.product.get_stock_fake_min_price())  # Renamed for clarity within block
+        product_max_price = float(row.product.get_stock_fake_max_price())  # Renamed for clarity
+
+        range_adjust = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
+
+        if int(product_min_price) == -1 and int(product_max_price) == -1:
+            # Filter items not in blacklist for finding closest if no min/max defined
+            valid_offers_for_closest = [item for item in offer_items_copy if
+                                        item.seller.name not in black_list and item.quantity > 0]
+            if not valid_offers_for_closest:
+                # print("No valid offers to find closest when stock_fake min/max are -1.")
+                return None  # Cannot determine price
+
+            # Find offer item closest to stock_fake_price_value (competitor price)
+            closest_offer_to_competitor = min(
+                valid_offers_for_closest,
+                key=lambda item: abs((item.price / item.quantity) - stock_fake_price_value)
             )
             adjusted_price = round(
-                (closest_offer_item.price / closest_offer_item.quantity - range_adjust),
+                (closest_offer_to_competitor.price / closest_offer_to_competitor.quantity) - range_adjust,
                 row.product.DONGIA_LAMTRON,
             )
-            adjusted_price = max(adjusted_price, stock_fake_price[0])
-        elif stock_fake_min_price != -1 and stock_fake_price[0] < stock_fake_min_price:  # type: ignore
-            adjusted_price = stock_fake_min_price
-        elif stock_fake_max_price != -1 and stock_fake_price[0] > stock_fake_max_price:  # type: ignore
-            adjusted_price = stock_fake_max_price
+            # Ensure our price is at least the competitor's price (or our calculated version of it)
+            adjusted_price = max(adjusted_price, stock_fake_price_value)
+
+        elif product_min_price != -1.0 and stock_fake_price_value < product_min_price:
+            adjusted_price = product_min_price
+        elif product_max_price != -1.0 and stock_fake_price_value > product_max_price:
+            adjusted_price = product_max_price
         else:
+            # Price based on competitor + random adjustment (if competitor price is within our min/max or no min/max)
             adjusted_price = round(
-                stock_fake_price[0] + range_adjust,
+                stock_fake_price_value + range_adjust,  # User may want to be above competitor
                 row.product.DONGIA_LAMTRON,
             )
 
-        adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust, stock_fake_min_price)
-        if stock_fake_max_price != -1:
-            adjusted_price = min(adjusted_price, stock_fake_max_price)
+        # General clamping based on our own product's min_offer_item and defined fake_stock min/max
+        # Ensure adjusted_price is not below our own min_offer_item's price (minus an adjustment)
+        # And not below the product_min_price for stock_fake
+        lower_bound_candidate = min_offer_item.price - range_adjust  # Potential price based on our cheapest valid offer
+
+        current_lower_bound = lower_bound_candidate
+        if product_min_price != -1.0:
+            current_lower_bound = max(lower_bound_candidate, product_min_price)
+
+        adjusted_price = max(adjusted_price, current_lower_bound)
+
+        if product_max_price != -1.0:
+            adjusted_price = min(adjusted_price, product_max_price)
+
         adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
-        sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
-        _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
-        closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit, black_list)
-        if closest_price != -1:
+
+        # Attempt to undercut a slightly higher priced seller
+        # Sort by price per unit
+        sorted_valid_offers = sorted([item for item in offer_items_copy if item.quantity > 0],
+                                     key=lambda item: item.price / item.quantity)
+
+        _profit_margin_for_undercut = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
+        closest_price, closest_seller = get_closest_offer_item(sorted_valid_offers, adjusted_price,
+                                                               _profit_margin_for_undercut, black_list)
+
+        if closest_price != -1 and closest_price > 0:  # Ensure positive price
             adjusted_price = closest_price
             _ref_seller = closest_seller
-            _ref_price = closest_price + _profit
+            _ref_price = closest_price + _profit_margin_for_undercut  # This is the target competitor price we undercut
+
+            # Re-clamp and re-round after getting closest_price
+            if product_min_price != -1.0:
+                adjusted_price = max(adjusted_price, product_min_price)
+            if product_max_price != -1.0:
+                adjusted_price = min(adjusted_price, product_max_price)
+            adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+
+        _display_min_price = round(product_min_price, 4) if product_min_price != -1.0 else -1.0
+        _display_max_price = round(product_max_price, 4) if product_max_price != -1.0 else -1.0
+
         return PriceInfo(
-            price_min=round(stock_fake_min_price, 4),
-            price_mac=round(stock_fake_max_price, 4),
+            price_min=_display_min_price,
+            price_mac=_display_max_price,
             adjusted_price=adjusted_price,
-            offer_item=min_offer_item,
+            offer_item=min_offer_item,  # This is the original min_offer_item (price per unit)
             stock_type=stock_type,
             stock_num_info=stock_num_info,
             ref_seller=_ref_seller,
@@ -250,38 +306,64 @@ def calculate_price_change(
     range_adjust = random.uniform(
         row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
     )
-    if min_offer_item.price < product_min_price:  # type: ignore
+
+    # Initial adjusted price based on min_offer_item and product's own min/max for this stock type
+    if product_min_price != -1.0 and min_offer_item.price < product_min_price:
         adjusted_price = product_min_price
-    elif min_offer_item.price > product_max_price:  # type: ignore
+    elif product_max_price != -1.0 and min_offer_item.price > product_max_price:
         adjusted_price = product_max_price
-    else:
-        range_adjust = random.uniform(
-            row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX
-        )
+    else:  # min_offer_item.price is within bounds, or bounds are not set
         adjusted_price = round(
-            min_offer_item.price - range_adjust,
+            min_offer_item.price - range_adjust,  # Undercut our own cheapest offer slightly
             row.product.DONGIA_LAMTRON,
         )
 
-    adjusted_price = max(adjusted_price, min_offer_item.price - range_adjust, product_min_price)
-    if product_max_price != -1:
+    # Re-apply clamping with product's min/max for this stock type
+    # Ensure adjusted_price is not below (our min_offer_item - range_adjust)
+    # And also not below the defined product_min_price for this stock type
+
+    lower_bound_candidate_stock12 = min_offer_item.price - range_adjust
+    current_lower_bound_stock12 = lower_bound_candidate_stock12
+    if product_min_price != -1.0:
+        current_lower_bound_stock12 = max(lower_bound_candidate_stock12, product_min_price)
+
+    adjusted_price = max(adjusted_price, current_lower_bound_stock12)
+
+    if product_max_price != -1.0:
         adjusted_price = min(adjusted_price, product_max_price)
+
     adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
 
-    sorted_offer_items = sorted(offer_items_copy, key=lambda item: item.price / item.quantity)
-    _profit = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
-    closest_price, closest_seller = get_closest_offer_item(sorted_offer_items, adjusted_price, _profit, black_list)
-    if closest_price != -1:
+    # Attempt to undercut a slightly higher priced seller from the general offers list
+    # Sort by price per unit
+    sorted_valid_offers_stock12 = sorted([item for item in offer_items_copy if item.quantity > 0],
+                                         key=lambda item: item.price / item.quantity)
+    _profit_margin_for_undercut_stock12 = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
+    closest_price, closest_seller = get_closest_offer_item(sorted_valid_offers_stock12, adjusted_price,
+                                                           _profit_margin_for_undercut_stock12, black_list)
+
+    if closest_price != -1 and closest_price > 0:  # Ensure positive price
         adjusted_price = closest_price
         _ref_seller = closest_seller
-        _ref_price = closest_price + _profit
+        _ref_price = closest_price + _profit_margin_for_undercut_stock12  # Target competitor price
+
+        # Re-clamp and re-round after getting closest_price
+        if product_min_price != -1.0:
+            adjusted_price = max(adjusted_price, product_min_price)
+        if product_max_price != -1.0:
+            adjusted_price = min(adjusted_price, product_max_price)
+        adjusted_price = round(adjusted_price, row.product.DONGIA_LAMTRON)
+
+    _display_product_min_price = product_min_price if product_min_price != -1.0 else -1.0
+    _display_product_max_price = product_max_price if product_max_price != -1.0 else -1.0
+
     return PriceInfo(
-        price_min=product_min_price,
-        price_mac=product_max_price,
+        price_min=_display_product_min_price,
+        price_mac=_display_product_max_price,
         adjusted_price=adjusted_price,
-        offer_item=min_offer_item,
+        offer_item=min_offer_item,  # This is the original min_offer_item (price per unit)
         stock_type=stock_type,
-        range_adjust=range_adjust,
+        range_adjust=range_adjust,  # This might be the initial range_adjust
         stock_num_info=stock_num_info,
         ref_seller=_ref_seller,
         ref_price=_ref_price
