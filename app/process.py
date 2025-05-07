@@ -222,7 +222,7 @@ def calculate_price_change(
 
         if int(product_min_price) == -1 and int(product_max_price) == -1:
             # Filter items not in blacklist for finding closest if no min/max defined
-            valid_offers_for_closest = [item for item in offer_items_copy if
+            valid_offers_for_closest = [item for item in valid_filtered_offer_items if
                                         item.seller.name not in black_list and item.quantity > 0]
             if not valid_offers_for_closest:
                 # print("No valid offers to find closest when stock_fake min/max are -1.")
@@ -269,7 +269,7 @@ def calculate_price_change(
 
         # Attempt to undercut a slightly higher priced seller
         # Sort by price per unit
-        sorted_valid_offers = sorted([item for item in offer_items_copy if item.quantity > 0],
+        sorted_valid_offers = sorted([item for item in valid_filtered_offer_items if item.quantity > 0],
                                      key=lambda item: item.price / item.quantity)
 
         _profit_margin_for_undercut = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
@@ -336,7 +336,7 @@ def calculate_price_change(
 
     # Attempt to undercut a slightly higher priced seller from the general offers list
     # Sort by price per unit
-    sorted_valid_offers_stock12 = sorted([item for item in offer_items_copy if item.quantity > 0],
+    sorted_valid_offers_stock12 = sorted([item for item in valid_filtered_offer_items if item.quantity > 0],
                                          key=lambda item: item.price / item.quantity)
     _profit_margin_for_undercut_stock12 = random.uniform(row.product.DONGIAGIAM_MIN, row.product.DONGIAGIAM_MAX)
     closest_price, closest_seller = get_closest_offer_item(sorted_valid_offers_stock12, adjusted_price,
