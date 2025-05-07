@@ -209,8 +209,8 @@ def process(
             _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
         else:
-            print("All seller in blacklist")
-            _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\nAll seller in blacklist"
+            print("No valid offer item")
+            _current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "\nNo valid offer item\n"
             write_to_log_cell(worksheet, index, _current_time, log_type="time")
         print("Next row...")
     currency_template = currency_templates_to_dicts(currency_template)
