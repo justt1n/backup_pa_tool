@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 from gspread.utils import a1_to_rowcol
 
 import constants
-from QueryCurrency import query_currency
-from QueryItem import query_item
+from QueryCurrency import query_currency, CurrencyQueryItem
+from QueryItem import query_item, ItemQueryItem
 from app.login import login
 from app.process import calculate_price_change, is_change_price, get_row_run_index
 from decorator.retry import retry
@@ -113,8 +113,12 @@ def process(
             if "SPECIAL" in row.product.Product_link:
                 _id_list = row.extra.get_game_list()
                 for _id in _id_list:
-                    if "C" in _id:
-                        _currency_info = query_currency("storage/joined_data.db", _id)
+                    _data_info = create_data_from_str(_id)
+                    if _data_info is None:
+                        print(f"Error creating data from string: {_id}")
+                        continue
+                    elif isinstance(_data_info, CurrencyQueryItem):
+                        _currency_info = _data_info
                         currency_template.append(
                             CurrencyTemplate(
                                 game=_currency_info.Game,
@@ -134,7 +138,7 @@ def process(
                             )
                         )
                     else:
-                        _item_info = query_item("storage/joined_data.db", _id)
+                        _item_info = _data_info
                         item_template.append(
                             ItemTemplate(
                                 game=_item_info.game,
@@ -157,49 +161,54 @@ def process(
                                 description=row.product.DESCRIPTION,
                             )
                         )
-            elif "C" in row.product.Product_link:
-                _currency_info = query_currency("storage/joined_data.db", row.product.Product_link)
-                currency_template.append(
-                    CurrencyTemplate(
-                        game=_currency_info.Game,
-                        server=_currency_info.Server,
-                        faction=_currency_info.Faction,
-                        currency_per_unit=row.extra.CURRENCY_PER_UNIT,
-                        total_units=min(final_stock, 9999),
-                        minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                        price_per_unit=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
-                        ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
-                        discount=row.extra.DISCOUNT,
-                        title=row.product.TITLE,
-                        duration=row.product.DURATION,
-                        delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
-                        description=row.product.DESCRIPTION,
-                    )
-                )
             else:
-                _item_info = query_item("storage/joined_data.db", row.product.Product_link)
-                item_template.append(
-                    ItemTemplate(
-                        game=_item_info.game,
-                        server=_item_info.server,
-                        faction=_item_info.faction,
-                        item_category1=_item_info.item_category1,
-                        item_category2=_item_info.item_category2,
-                        item_category3=_item_info.item_category3,
-                        item_per_unit=row.extra.CURRENCY_PER_UNIT,
-                        unit_price=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.2f}"),
-                        total_units=min(final_stock, 9999),
-                        min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
-                        ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
-                        discount=row.extra.DISCOUNT,
-                        offer_duration=row.product.DURATION,
-                        delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
-                        delivery_info='',
-                        cover_image='',
-                        title=row.product.TITLE,
-                        description=row.product.DESCRIPTION,
+                _data_info = create_data_from_str(row.product.Product_link)
+                if _data_info is None:
+                    print(f"Error creating data from string: {row.product.Product_link}")
+                    continue
+                if isinstance(_data_info, CurrencyQueryItem):
+                    _currency_info = _data_info
+                    currency_template.append(
+                        CurrencyTemplate(
+                            game=_currency_info.Game,
+                            server=_currency_info.Server,
+                            faction=_currency_info.Faction,
+                            currency_per_unit=row.extra.CURRENCY_PER_UNIT,
+                            total_units=min(final_stock, 9999),
+                            minimum_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
+                            price_per_unit=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.3f}"),
+                            ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
+                            discount=row.extra.DISCOUNT,
+                            title=row.product.TITLE,
+                            duration=row.product.DURATION,
+                            delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
+                            description=row.product.DESCRIPTION,
+                        )
                     )
-                )
+                else:
+                    _item_info = _data_info
+                    item_template.append(
+                        ItemTemplate(
+                            game=_item_info.game,
+                            server=_item_info.server,
+                            faction=_item_info.faction,
+                            item_category1=_item_info.item_category1,
+                            item_category2=_item_info.item_category2,
+                            item_category3=_item_info.item_category3,
+                            item_per_unit=row.extra.CURRENCY_PER_UNIT,
+                            unit_price=float(f"{item_info.adjusted_price * float(row.extra.CURRENCY_PER_UNIT):.2f}"),
+                            total_units=min(final_stock, 9999),
+                            min_unit_per_order=row.extra.MIN_UNIT_PER_ORDER,
+                            ValueForDiscount=row.extra.VALUE_FOR_DISCOUNT,
+                            discount=row.extra.DISCOUNT,
+                            offer_duration=row.product.DURATION,
+                            delivery_guarantee=row.extra.DELIVERY_GUARANTEE,
+                            delivery_info='',
+                            cover_image='',
+                            title=row.product.TITLE,
+                            description=row.product.DESCRIPTION,
+                        )
+                    )
 
             print(f"Price change:\n{item_info.model_dump(mode='json')}")
             log_str = ""
@@ -242,6 +251,30 @@ def correct_extra_data(extra: ExtraInfor) -> ExtraInfor:
     if extra.DISCOUNT is None:
         extra.DISCOUNT = ""
     return extra
+
+
+def create_data_from_str(s: str) -> CurrencyQueryItem | ItemQueryItem | None:
+    s = s.split(",")
+    if len(s) == 0:
+        raise Exception("Empty string")
+    elif len(s) == 3:
+        return CurrencyQueryItem(
+            ID="",
+            Game=s[0],
+            Server=s[1],
+            Faction=s[2],
+        )
+    elif len(s) == 4:
+        return ItemQueryItem(
+            ID="",
+            game=s[0],
+            server=s[1],
+            faction=s[2],
+            item_category1=s[3],
+            item_category2=s[4],
+            item_category3=s[5]
+        )
+    return None
 
 
 def upload_data_to_site(browser: SeleniumUtil, isHaveItem: bool):
