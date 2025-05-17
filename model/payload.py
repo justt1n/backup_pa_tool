@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from model.crawl_model import OfferItem, StockNumInfo
 from model.enums import StockType
 from utils.sheet_operator import query_multi_model_from_worksheet
-from .sheet_model import Product, StockInfo, G2G, FUN, BIJ, ExtraInfor
+from .sheet_model import Product, StockInfo, G2G, FUN, BIJ, ExtraInfor, DD
 
 
 @dataclass
@@ -93,6 +93,7 @@ class Row:
     fun: FUN
     bij: BIJ
     extra: ExtraInfor
+    dd: DD
 
     def __init__(
             self,
@@ -104,6 +105,7 @@ class Row:
             fun: FUN,
             bij: BIJ,
             extra: ExtraInfor,
+            dd: DD,
     ) -> None:
         self.row_index = row_index
         self.worksheet = worksheet
@@ -124,7 +126,7 @@ class Row:
                 row_index,
                 worksheet,
                 *query_multi_model_from_worksheet(
-                    worksheet, [Product, StockInfo, G2G, FUN, BIJ, ExtraInfor], row_index
+                    worksheet, [Product, StockInfo, G2G, FUN, BIJ, ExtraInfor, DD], row_index
                 ),  # type: ignore
             )
         except Exception as e:
