@@ -302,6 +302,10 @@ def get_update_str(offer_item: OfferItem, item_info: PriceInfo, stock_fake_items
             _str += f"Min BIJ: {stock_fake_items[2][1]} = {stock_fake_items[2][0]}, \n"
         else:
             _str += "Min BIJ: no matching seller\n"
+        if stock_fake_items[3] is not None:
+            _str += f"Min DD: {stock_fake_items[3][1]} = {stock_fake_items[3][0]}, \n"
+        else:
+            _str += "Min DD: no matching seller\n"
     return _str + "\n"
 
 

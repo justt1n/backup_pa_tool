@@ -148,10 +148,19 @@ def calculate_price_stock_fake(
         except Exception as e:
             raise Exception(f"Error getting BIJ price: {e}")
 
+    dd_min_price = None
+    if row.dd.DD_CHECK == 1:
+        try:
+            dd_min_price = (row.dd.get_dd_price()
+                            * row.dd.DD_PROFIT
+                            * row.dd.DD_QUYDOIDONVI, "Get directly from sheet")
+        except Exception as e:
+            raise Exception(f"Error getting DD price: {e}")
+
     return min(
-        [i for i in [g2g_min_price, fun_min_price, bij_min_price] if i is not None and i[0] > 0],
+        [i for i in [g2g_min_price, fun_min_price, bij_min_price, dd_min_price] if i is not None and i[0] > 0],
         key=lambda x: x[0]
-    ), [g2g_min_price, fun_min_price, bij_min_price]
+    ), [g2g_min_price, fun_min_price, bij_min_price, dd_min_price]
 
 
 @time_execution
