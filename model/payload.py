@@ -115,6 +115,7 @@ class Row:
         self.fun = fun
         self.bij = bij
         self.extra = extra
+        self.dd = dd
 
     @staticmethod
     def from_row_index(
